@@ -15,13 +15,6 @@
 (function () {
     'use strict';
 
-    /* Detect phone UA — hide sidebar on phones only; tablets/desktops/ChromeOS keep acrylic */
-    (function () {
-        var ua = navigator.userAgent || '';
-        var isPhone = /Android.*Mobile|iPhone|iPod|Windows Phone|BlackBerry|Opera Mini|IEMobile/i.test(ua);
-        if (isPhone) document.documentElement.classList.add('qb-phone-ua');
-    })();
-
     var STYLE_ID = 'qwen-beautify-style';
     var THEME_STYLE_ID = 'qwen-beautify-theme';
     var DB_NAME = 'qwen_beautify';
@@ -462,17 +455,6 @@
         html.mobile .sidebar-wrapper-mask .mask {\
             backdrop-filter: blur(4px) !important;\
             -webkit-backdrop-filter: blur(4px) !important;\
-        }\
-        /* Mobile UA fix: hide sidebar on phone UAs only */\
-        html.qb-phone-ua .sidebar-wrapper {\
-            display: none !important;\
-        }\
-        html.qb-phone-ua .splitter-container-left-panel {\
-            display: none !important;\
-            width: 0 !important;\
-            min-width: 0 !important;\
-            max-width: 0 !important;\
-            overflow: hidden !important;\
         }\
         \
         html.dark .chat-response-message-right,\
