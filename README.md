@@ -1,6 +1,8 @@
 # Qwen Studio 美化脚本
 
 > 为 [Qwen Studio](https://chat.qwen.ai/) 添加毛玻璃亚克力效果、自定义背景、主题色、字体的油猴脚本。
+>
+> 🌐 **官网**：[hxtx-hi.github.io/Qwen-Studio-Beautify](https://hxtx-hi.github.io/Qwen-Studio-Beautify/)（支持一键安装）
 
 ## ✨ 功能
 
@@ -24,16 +26,9 @@
 
 Via 浏览器支持油猴脚本，安卓和 iOS 均可使用：
 
-**方式一：在线安装（推荐）**
-1. 在 Via 浏览器中打开本项目的 [Release 页面](https://github.com/hxtx-hi/Qwen-Studio-Beautify/releases/latest)
-2. 点击 `qwen-studio-beautify.user.js` 文件下载
-3. Via 会自动弹出「是否安装脚本」提示，点击**确定**即可
-
-**方式二：手动添加**
-1. 下载本脚本文件到手机本地
-2. 打开 Via 浏览器，点击右下角 **≡** → **设置** → **脚本**
-3. 点击右上角 **+** → **添加脚本**
-4. 选择「导入」，找到下载的 `.js` 文件导入即可
+1. 在 Via 浏览器中打开 [官网](https://hxtx-hi.github.io/Qwen-Studio-Beautify/)
+2. 点击页面上的「**⚡ 立即安装**」按钮
+3. Via 会自动识别并弹出安装提示，点击**确定**即可
 
 安装完成后打开 [chat.qwen.ai](https://chat.qwen.ai/) 即可生效。
 
