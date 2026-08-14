@@ -1,10 +1,14 @@
 # Qwen Studio 美化脚本
 
+[![访问官网一键安装](https://img.shields.io/badge/🌐_访问官网-一键安装脚本-6366f1?style=for-the-badge&logo=googlechrome&logoColor=white&labelColor=0a0a0f&color=6366f1)](https://hxtx-hi.github.io/Qwen-Studio-Beautify/)
+
 > 为 [Qwen Studio](https://chat.qwen.ai/) 添加毛玻璃亚克力效果、自定义背景、主题色、字体的油猴脚本。
 >
 > 🌐 **官网**：[hxtx-hi.github.io/Qwen-Studio-Beautify](https://hxtx-hi.github.io/Qwen-Studio-Beautify/)（支持一键安装）
 >
 > 🧩 **Chrome/Edge 扩展**：见本仓库 `extension/` 目录，下载后在浏览器扩展页面加载即可
+>
+> ⚠️ **注意**：Chrome/Edge 扩展版本暂未完成完全测试，可能存在 Bug，推荐优先使用油猴脚本版本
 
 ## ✨ 功能
 
@@ -50,7 +54,9 @@ Via 浏览器支持油猴脚本，安卓和 iOS 均可使用：
 - **手机 UA**（Android Phone / iPhone / iPod 等）：自动隐藏侧边栏
 - **平板 / 桌面 UA**：正常显示所有效果，包括亚克力毛玻璃
 
-## 🧩 Chrome / Edge 浏览器扩展
+## 🧩 Chrome / Edge 浏览器扩展（实验性）
+
+> ⚠️ 扩展版本暂未完成完全测试，可能存在 Bug，**推荐优先使用油猴脚本版本**。
 
 除了油猴脚本，本项目也提供 Chrome/Edge 原生扩展版本：
 
