@@ -3,6 +3,8 @@
 > 为 [Qwen Studio](https://chat.qwen.ai/) 添加毛玻璃亚克力效果、自定义背景、主题色、字体的油猴脚本。
 >
 > 🌐 **官网**：[hxtx-hi.github.io/Qwen-Studio-Beautify](https://hxtx-hi.github.io/Qwen-Studio-Beautify/)（支持一键安装）
+>
+> 🧩 **Chrome/Edge 扩展**：见本仓库 `extension/` 目录，下载后在浏览器扩展页面加载即可
 
 ## ✨ 功能
 
@@ -47,6 +49,16 @@ Via 浏览器支持油猴脚本，安卓和 iOS 均可使用：
 脚本通过浏览器 UA 判断设备类型：
 - **手机 UA**（Android Phone / iPhone / iPod 等）：自动隐藏侧边栏
 - **平板 / 桌面 UA**：正常显示所有效果，包括亚克力毛玻璃
+
+## 🧩 Chrome / Edge 浏览器扩展
+
+除了油猴脚本，本项目也提供 Chrome/Edge 原生扩展版本：
+
+1. 下载本仓库 `extension/` 文件夹（或从 Release 下载 zip 包）
+2. Chrome 地址栏输入 `chrome://extensions/`，Edge 输入 `edge://extensions/`
+3. 打开右上角「**开发者模式**」
+4. 点击「**加载已解压的扩展程序**」→ 选择 `extension` 文件夹
+5. 打开 [chat.qwen.ai](https://chat.qwen.ai/) 即可生效
 
 ## 📋 版本
 
