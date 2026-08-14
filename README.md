@@ -14,9 +14,28 @@
 
 ## 📦 安装
 
-1. 安装 [Tampermonkey](https://www.tampermonkey.net/) 或其他油猴管理器
-2. 点击 [安装脚本](https://raw.githubusercontent.com/hxtx-hi/Qwen-Studio-Beautify/main/qwen-studio-beautify.user.js)（或在 Greasy Fork 安装）
+### 电脑端（Tampermonkey）
+
+1. 安装 [Tampermonkey](https://www.tampermonkey.net/) 浏览器扩展
+2. 点击 [安装脚本](https://raw.githubusercontent.com/hxtx-hi/Qwen-Studio-Beautify/main/qwen-studio-beautify.user.js)
 3. 打开 [chat.qwen.ai](https://chat.qwen.ai/) 即可生效
+
+### 手机端（Via 浏览器）
+
+Via 浏览器支持油猴脚本，安卓和 iOS 均可使用：
+
+**方式一：在线安装（推荐）**
+1. 在 Via 浏览器中打开本项目的 [Release 页面](https://github.com/hxtx-hi/Qwen-Studio-Beautify/releases/latest)
+2. 点击 `qwen-studio-beautify.user.js` 文件下载
+3. Via 会自动弹出「是否安装脚本」提示，点击**确定**即可
+
+**方式二：手动添加**
+1. 下载本脚本文件到手机本地
+2. 打开 Via 浏览器，点击右下角 **≡** → **设置** → **脚本**
+3. 点击右上角 **+** → **添加脚本**
+4. 选择「导入」，找到下载的 `.js` 文件导入即可
+
+安装完成后打开 [chat.qwen.ai](https://chat.qwen.ai/) 即可生效。
 
 ## 🔧 使用
 
