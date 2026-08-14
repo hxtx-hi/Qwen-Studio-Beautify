@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qwen Studio 美化脚本</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#0a0a0f;color:#e4e4e7;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse at 20% 50%,rgba(99,102,241,.15) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(168,85,247,.1) 0%,transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(59,130,246,.1) 0%,transparent 50%)}
+.glass{background:rgba(255,255,255,.05);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,.1);border-radius:16px}
+.container{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:24px 20px}
+.hero{text-align:center;padding:80px 0 48px}
+.hero h1{font-size:clamp(2rem,6vw,3.2rem);font-weight:700;background:linear-gradient(135deg,#a78bfa,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.3}
+.hero p{margin-top:16px;font-size:1.1rem;color:#a1a1aa;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.7}
+.install-btn{display:inline-flex;align-items:center;gap:8px;margin-top:32px;padding:14px 36px;font-size:1.1rem;font-weight:600;color:#fff;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:12px;cursor:pointer;text-decoration:none;transition:all .3s;box-shadow:0 4px 24px rgba(99,102,241,.3)}
+.install-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(99,102,241,.5)}
+.install-btn:active{transform:translateY(0)}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;padding:32px 0}
+.feature{padding:24px}
+.feature h3{font-size:1rem;font-weight:600;margin-bottom:8px;color:#e4e4e7}
+.feature p{font-size:.875rem;color:#71717a;line-height:1.6}
+.feature .icon{font-size:1.5rem;margin-bottom:12px;display:block}
+.section-title{font-size:1.4rem;font-weight:700;margin:48px 0 24px;padding-left:12px;border-left:3px solid #6366f1}
+.install-guide{padding:24px;margin-bottom:16px}
+.install-guide h3{font-size:1rem;font-weight:600;margin-bottom:12px;color:#a78bfa}
+.install-guide ol,.install-guide ul{padding-left:20px;color:#a1a1aa;line-height:2;font-size:.9rem}
+.install-guide a{color:#60a5fa;text-decoration:none}
+.install-guide a:hover{text-decoration:underline}
+.tag{display:inline-block;padding:2px 10px;font-size:.75rem;border-radius:20px;background:rgba(99,102,241,.15);color:#a78bfa;margin-right:6px}
+footer{text-align:center;padding:48px 0 24px;color:#3f3f46;font-size:.8rem}
+footer a{color:#52525b;text-decoration:none}
+footer a:hover{color:#71717a}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="container">
+
+<div class="hero">
+<h1>Qwen Studio 美化脚本</h1>
+<p>为 Qwen Studio 添加毛玻璃亚克力效果、自定义背景、主题色、字体，让你的 AI 工作台更好看。</p>
+<a class="install-btn" href="https://raw.githubusercontent.com/hxtx-hi/Qwen-Studio-Beautify/main/qwen-studio-beautify.user.js">
+<span>⚡</span> 立即安装
+</a>
+</div>
+
+<div class="features">
+<div class="feature glass">
+<span class="icon">✨</span>
+<h3>亚克力毛玻璃</h3>
+<p>聊天气泡、侧边栏、输入框等组件添加半透明模糊背景，质感拉满</p>
+</div>
+<div class="feature glass">
+<span class="icon">🎨</span>
+<h3>自定义背景</h3>
+<p>支持图片/视频作为页面背景，可自由调节透明度</p>
+</div>
+<div class="feature glass">
+<span class="icon">🌈</span>
+<h3>HSV 主题色</h3>
+<p>通过色相/饱和度/明度自由调节主题色调</p>
+</div>
+<div class="feature glass">
+<span class="icon">🔤</span>
+<h3>自定义字体</h3>
+<p>内置 20+ 中英文字体，一键切换</p>
+</div>
+<div class="feature glass">
+<span class="icon">📱</span>
+<h3>移动端适配</h3>
+<p>手机 UA 自动隐藏侧边栏，Via 浏览器完美支持</p>
+</div>
+<div class="feature glass">
+<span class="icon">🌙</span>
+<h3>暗色模式</h3>
+<p>所有效果在暗色模式下均有独立适配</p>
+</div>
+</div>
+
+<h2 class="section-title">安装教程</h2>
+
+<div class="install-guide glass">
+<h3>💻 电脑端 — Tampermonkey</h3>
+<ol>
+<li>安装 <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> 浏览器扩展</li>
+<li>点击上方「<strong>立即安装</strong>」按钮</li>
+<li>Tampermonkey 会自动弹出安装确认，点击安装即可</li>
+<li>打开 <a href="https://chat.qwen.ai/" target="_blank">chat.qwen.ai</a>，右下角出现 <code>[+]</code> 悬浮球即为生效</li>
+</ol>
+</div>
+
+<div class="install-guide glass">
+<h3>📱 手机端 — Via 浏览器（安卓 / iOS）</h3>
+<p style="color:#a1a1aa;font-size:.9rem;margin-bottom:12px">Via 浏览器原生支持油猴脚本，无需额外安装扩展。</p>
+<ol>
+<li>在 Via 浏览器中点击上方「<strong>立即安装</strong>」按钮</li>
+<li>Via 会自动识别为油猴脚本，弹出安装提示</li>
+<li>点击<strong>确定</strong>，脚本即刻生效</li>
+<li>打开 <a href="https://chat.qwen.ai/" target="_blank">chat.qwen.ai</a>，右下角出现 <code>[+]</code> 悬浮球即为生效</li>
+</ol>
+<p style="color:#71717a;font-size:.8rem;margin-top:12px">💡 如果没有自动弹出提示，可以：Via 菜单 → 设置 → 脚本 → 添加脚本 → 导入</p>
+</div>
+
+<div class="install-guide glass">
+<h3>🎯 使用方法</h3>
+<p style="color:#a1a1aa;font-size:.9rem;margin-bottom:12px">安装后打开 Qwen Studio，右下角会出现一个<strong>可拖动的悬浮球 <code>[+]</code></strong>，点击打开设置面板：</p>
+<ul>
+<li><span class="tag">背景</span> 切换图片/视频/无背景</li>
+<li><span class="tag">透明度</span> 滑块调节背景透明度</li>
+<li><span class="tag">亚克力</span> 开关毛玻璃效果</li>
+<li><span class="tag">主题色</span> HSV 色盘选择颜色</li>
+<li><span class="tag">字体</span> 下拉选择预设字体</li>
+</ul>
+</div>
+
+<footer>
+<p>Qwen Studio Beautify v6.9.3 · <a href="https://github.com/hxtx-hi/Qwen-Studio-Beautify">GitHub</a> · <a href="https://gitee.com/hxtx-hi/Qwen-Studio-Beautify">Gitee</a></p>
+</footer>
+
+</div>
+</body>
+</html>
