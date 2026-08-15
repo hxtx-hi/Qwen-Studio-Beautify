@@ -1,48 +1,209 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Qwen Studio 美化脚本</title>
+<link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg" type="image/svg+xml">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#0a0a0f;color:#e4e4e7;overflow-x:hidden}
-.bg{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse at 20% 50%,rgba(99,102,241,.15) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(168,85,247,.1) 0%,transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(59,130,246,.1) 0%,transparent 50%)}
-.glass{background:rgba(255,255,255,.05);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,.1);border-radius:16px}
+
+:root{
+  --accent:#10b981;--accent2:#059669;--accent3:#34d399;
+  --cyan:#06b6d4;--glow:rgba(16,185,129,.12);
+  --radius:16px;
+}
+
+[data-theme="light"]{
+  --bg:#f0fdf4;--bg2:#ecfdf5;
+  --surface:rgba(255,255,255,.75);--surface-solid:#ffffff;
+  --border:#d1fae5;--border2:#a7f3d0;
+  --text:#064e3b;--text2:#4b5563;--text3:#9ca3af;
+  --shadow:0 1px 3px rgba(0,0,0,.06);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.07);
+  --toggle-bg:#e2e8f0;--toggle-icon:#f59e0b;
+  --glass-border:rgba(16,185,129,.18);
+  --glass-bg:rgba(255,255,255,.65);
+  --hero-grad:linear-gradient(135deg,#10b981,#06b6d4,#059669);
+  --tag-bg:rgba(16,185,129,.1);--tag-color:#059669;
+  --warn-bg:rgba(245,158,11,.08);--warn-border:#f59e0b;--warn-text:#92400e;
+  --warn-text2:#78350f;
+  --footer-color:#9ca3af;
+}
+
+[data-theme="dark"]{
+  --bg:#0a0f0d;--bg2:#0d1412;
+  --surface:rgba(19,31,26,.7);--surface-solid:#131f1a;
+  --border:#1e3a2f;--border2:#2d5a47;
+  --text:#d1fae5;--text2:#88a89a;--text3:#5a7a6c;
+  --shadow:0 1px 3px rgba(0,0,0,.3);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.4);
+  --toggle-bg:#1e3a2f;--toggle-icon:#818cf8;
+  --glass-border:rgba(16,185,129,.15);
+  --glass-bg:rgba(16,185,129,.06);
+  --hero-grad:linear-gradient(135deg,#34d399,#06b6d4,#10b981);
+  --tag-bg:rgba(16,185,129,.12);--tag-color:#34d399;
+  --warn-bg:rgba(245,158,11,.08);--warn-border:#b45309;--warn-text:#fbbf24;
+  --warn-text2:#fcd34d;
+  --footer-color:#3f4f46;
+}
+
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--text);overflow-x:hidden;
+  transition:background .35s,color .35s;
+}
+
+/* BG */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 700px 500px at 15% 10%,rgba(16,185,129,.08),transparent),
+    radial-gradient(ellipse 500px 500px at 85% 80%,rgba(6,182,212,.06),transparent);
+  animation:drift 25s ease-in-out infinite alternate;
+}
+[data-theme="dark"] .bg{
+  background:
+    radial-gradient(ellipse 700px 500px at 15% 10%,rgba(16,185,129,.05),transparent),
+    radial-gradient(ellipse 500px 500px at 85% 80%,rgba(6,182,212,.03),transparent);
+}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-20px,15px) scale(1.04)}}
+
+/* Glass */
+.glass{
+  background:var(--glass-bg);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  transition:background .35s,border-color .35s,box-shadow .35s;
+}
+
+/* Theme Toggle */
+.theme-toggle{
+  position:fixed;top:20px;right:24px;z-index:100;
+  width:52px;height:28px;border-radius:14px;
+  background:var(--toggle-bg);border:1px solid var(--border);
+  cursor:pointer;transition:all .3s;
+  display:flex;align-items:center;padding:0 4px;
+}
+.theme-toggle:hover{border-color:var(--accent)}
+.theme-toggle .knob{
+  width:20px;height:20px;border-radius:50%;
+  background:var(--toggle-icon);
+  transition:transform .3s,background .3s;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;line-height:1;
+  box-shadow:0 1px 4px rgba(0,0,0,.15);
+}
+[data-theme="dark"] .theme-toggle .knob{transform:translateX(24px)}
+
+/* Container */
 .container{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:24px 20px}
+
+/* Hero */
 .hero{text-align:center;padding:80px 0 48px}
-.hero h1{font-size:clamp(2rem,6vw,3.2rem);font-weight:700;background:linear-gradient(135deg,#a78bfa,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.3}
-.hero p{margin-top:16px;font-size:1.1rem;color:#a1a1aa;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.7}
-.install-btn{display:inline-flex;align-items:center;gap:8px;margin-top:32px;padding:14px 36px;font-size:1.1rem;font-weight:600;color:#fff;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:12px;cursor:pointer;text-decoration:none;transition:all .3s;box-shadow:0 4px 24px rgba(99,102,241,.3)}
-.install-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(99,102,241,.5)}
+.hero h1{
+  font-size:clamp(2rem,6vw,3.2rem);font-weight:700;
+  background:var(--hero-grad);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;line-height:1.3;
+}
+.hero p{margin-top:16px;font-size:1.1rem;color:var(--text2);max-width:520px;margin-left:auto;margin-right:auto;line-height:1.7}
+
+.install-btn{
+  display:inline-flex;align-items:center;gap:8px;margin-top:32px;
+  padding:14px 36px;font-size:1.1rem;font-weight:600;color:#fff;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));
+  border:none;border-radius:12px;cursor:pointer;text-decoration:none;
+  transition:all .3s;box-shadow:0 4px 24px rgba(16,185,129,.3);
+}
+.install-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(16,185,129,.45)}
 .install-btn:active{transform:translateY(0)}
+
+/* Author Button */
+.btn-author-hero{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:14px;padding:8px 20px;font-size:.85rem;font-weight:500;
+  color:var(--text2);background:var(--glass-bg);
+  border:1px solid var(--glass-border);border-radius:10px;
+  cursor:pointer;text-decoration:none;transition:all .25s;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.btn-author-hero:hover{border-color:var(--accent);color:var(--accent);background:rgba(16,185,129,.06)}
+.btn-author-hero svg{flex-shrink:0}
+
+/* Features */
 .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;padding:32px 0}
 .feature{padding:24px}
-.feature h3{font-size:1rem;font-weight:600;margin-bottom:8px;color:#e4e4e7}
-.feature p{font-size:.875rem;color:#71717a;line-height:1.6}
+.feature h3{font-size:1rem;font-weight:600;margin-bottom:8px;color:var(--text)}
+.feature p{font-size:.875rem;color:var(--text2);line-height:1.6}
 .feature .icon{font-size:1.5rem;margin-bottom:12px;display:block}
-.section-title{font-size:1.4rem;font-weight:700;margin:48px 0 24px;padding-left:12px;border-left:3px solid #6366f1}
+
+/* Section */
+.section-title{font-size:1.4rem;font-weight:700;margin:48px 0 24px;padding-left:12px;border-left:3px solid var(--accent);transition:border-color .3s}
+
+/* Install Guide */
 .install-guide{padding:24px;margin-bottom:16px}
-.install-guide h3{font-size:1rem;font-weight:600;margin-bottom:12px;color:#a78bfa}
-.install-guide ol,.install-guide ul{padding-left:20px;color:#a1a1aa;line-height:2;font-size:.9rem}
-.install-guide a{color:#60a5fa;text-decoration:none}
+.install-guide h3{font-size:1rem;font-weight:600;margin-bottom:12px;color:var(--accent)}
+.install-guide ol,.install-guide ul{padding-left:20px;color:var(--text2);line-height:2;font-size:.9rem}
+.install-guide a{color:var(--cyan);text-decoration:none}
 .install-guide a:hover{text-decoration:underline}
-.tag{display:inline-block;padding:2px 10px;font-size:.75rem;border-radius:20px;background:rgba(99,102,241,.15);color:#a78bfa;margin-right:6px}
-footer{text-align:center;padding:48px 0 24px;color:#3f3f46;font-size:.8rem}
-footer a{color:#52525b;text-decoration:none}
-footer a:hover{color:#71717a}
+.install-guide code{
+  background:var(--tag-bg);color:var(--tag-color);
+  padding:1px 6px;border-radius:4px;font-size:.85em;
+}
+
+/* Tag */
+.tag{
+  display:inline-block;padding:2px 10px;font-size:.75rem;border-radius:20px;
+  background:var(--tag-bg);color:var(--tag-color);margin-right:6px;
+  transition:background .3s,color .3s;
+}
+
+/* Warn */
+.warn-box{
+  border-left:3px solid var(--warn-border)!important;
+  background:var(--warn-bg)!important;
+}
+.warn-box h3{color:var(--warn-text)!important}
+.warn-box p{color:var(--warn-text2)!important}
+
+/* Footer */
+footer{text-align:center;padding:48px 0 24px;color:var(--footer-color);font-size:.8rem;transition:color .3s}
+footer a{color:var(--text3);text-decoration:none}
+footer a:hover{color:var(--text2)}
+
+@media(max-width:600px){
+  .hero{padding:60px 0 32px}
+  .features{grid-template-columns:1fr}
+  .theme-toggle{top:12px;right:16px}
+}
 </style>
 </head>
 <body>
 <div class="bg"></div>
+
+<!-- Theme Toggle -->
+<div class="theme-toggle" onclick="toggleTheme()" title="切换亮暗模式">
+  <div class="knob" id="themeKnob">☀️</div>
+</div>
+
 <div class="container">
 
 <div class="hero">
 <h1>Qwen Studio 美化脚本</h1>
 <p>为 Qwen Studio 添加毛玻璃亚克力效果、自定义背景、主题色、字体，让你的 AI 工作台更好看。</p>
-<a class="install-btn" href="https://raw.githubusercontent.com/hxtx-hi/Qwen-Studio-Beautify/main/qwen-studio-beautify.user.js">
-<span>⚡</span> 立即安装
-</a>
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+  <a class="install-btn" href="https://raw.githubusercontent.com/hxtx-hi/Qwen-Studio-Beautify/main/qwen-studio-beautify.user.js">
+    <span>⚡</span> 立即安装
+  </a>
+  <a class="btn-author-hero" href="https://github.com/hxtx-hi" target="_blank" title="前往作者主页">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+    🐙 前往作者主页
+  </a>
+</div>
 </div>
 
 <div class="features">
@@ -92,19 +253,19 @@ footer a:hover{color:#71717a}
 
 <div class="install-guide glass">
 <h3>📱 手机端 — Via 浏览器（安卓 / iOS）</h3>
-<p style="color:#a1a1aa;font-size:.9rem;margin-bottom:12px">Via 浏览器原生支持油猴脚本，无需额外安装扩展。</p>
+<p style="color:var(--text2);font-size:.9rem;margin-bottom:12px">Via 浏览器原生支持油猴脚本，无需额外安装扩展。</p>
 <ol>
 <li>在 Via 浏览器中点击上方「<strong>立即安装</strong>」按钮</li>
 <li>Via 会自动识别为油猴脚本，弹出安装提示</li>
 <li>点击<strong>确定</strong>，脚本即刻生效</li>
 <li>打开 <a href="https://chat.qwen.ai/" target="_blank">chat.qwen.ai</a>，右下角出现 <code>[+]</code> 悬浮球即为生效</li>
 </ol>
-<p style="color:#71717a;font-size:.8rem;margin-top:12px">💡 如果没有自动弹出提示，可以：Via 菜单 → 设置 → 脚本 → 添加脚本 → 导入</p>
+<p style="color:var(--text3);font-size:.8rem;margin-top:12px">💡 如果没有自动弹出提示，可以：Via 菜单 → 设置 → 脚本 → 添加脚本 → 导入</p>
 </div>
 
-<div class="install-guide glass" style="border-left:3px solid #f59e0b">
+<div class="install-guide glass warn-box">
 <h3>🧩 Chrome / Edge 扩展（实验性）</h3>
-<p style="color:#f59e0b;font-size:.85rem;margin-bottom:12px">⚠️ 扩展版本暂未完成完全测试，可能存在 Bug，推荐优先使用油猴脚本版本。</p>
+<p style="font-size:.85rem;margin-bottom:12px">⚠️ 扩展版本暂未完成完全测试，可能存在 Bug，推荐优先使用油猴脚本版本。</p>
 <ol>
 <li>从 <a href="https://github.com/hxtx-hi/Qwen-Studio-Beautify/releases/tag/v6.9.3-ext" target="_blank">GitHub Release</a> 或 <a href="https://gitee.com/hxtx-hi/Qwen-Studio-Beautify/releases/tag/v6.9.3-ext" target="_blank">Gitee Release</a> 下载 <code>qwen-studio-beautify-extension.zip</code></li>
 <li>解压 zip 文件到本地文件夹</li>
@@ -116,7 +277,7 @@ footer a:hover{color:#71717a}
 
 <div class="install-guide glass">
 <h3>🎯 使用方法</h3>
-<p style="color:#a1a1aa;font-size:.9rem;margin-bottom:12px">安装后打开 Qwen Studio，右下角会出现一个<strong>可拖动的悬浮球 <code>[+]</code></strong>，点击打开设置面板：</p>
+<p style="color:var(--text2);font-size:.9rem;margin-bottom:12px">安装后打开 Qwen Studio，右下角会出现一个<strong>可拖动的悬浮球 <code>[+]</code></strong>，点击打开设置面板：</p>
 <ul>
 <li><span class="tag">背景</span> 切换图片/视频/无背景</li>
 <li><span class="tag">透明度</span> 滑块调节背景透明度</li>
@@ -131,5 +292,22 @@ footer a:hover{color:#71717a}
 </footer>
 
 </div>
+
+<script>
+function toggleTheme(){
+  const html=document.documentElement;
+  const next=html.getAttribute('data-theme')==='light'?'dark':'light';
+  html.setAttribute('data-theme',next);
+  document.getElementById('themeKnob').textContent=next==='light'?'☀️':'🌙';
+  localStorage.setItem('qsb-theme',next);
+}
+(function(){
+  const saved=localStorage.getItem('qsb-theme');
+  if(saved){
+    document.documentElement.setAttribute('data-theme',saved);
+    document.getElementById('themeKnob').textContent=saved==='light'?'☀️':'🌙';
+  }
+})();
+</script>
 </body>
 </html>
