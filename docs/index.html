@@ -103,36 +103,49 @@ body{
 .container{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:24px 20px}
 
 /* Hero */
-.hero{text-align:center;padding:80px 0 48px}
+.hero{display:flex;align-items:center;justify-content:space-between;gap:32px;padding:72px 0 48px}
+.hero-text{flex:1;text-align:center}
 .hero h1{
   font-size:clamp(2rem,6vw,3.2rem);font-weight:700;
   background:var(--hero-grad);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   background-clip:text;line-height:1.3;
 }
-.hero p{margin-top:16px;font-size:1.1rem;color:var(--text2);max-width:520px;margin-left:auto;margin-right:auto;line-height:1.7}
+.hero p{margin-top:16px;font-size:1.1rem;color:var(--text2);max-width:480px;margin-left:auto;margin-right:auto;line-height:1.7}
 
-.install-btn{
-  display:inline-flex;align-items:center;gap:8px;margin-top:32px;
-  padding:14px 36px;font-size:1.1rem;font-weight:600;color:#fff;
-  background:linear-gradient(135deg,var(--accent),var(--cyan));
-  border:none;border-radius:12px;cursor:pointer;text-decoration:none;
-  transition:all .3s;box-shadow:0 4px 24px rgba(16,185,129,.3);
+.hero-btns{display:flex;flex-direction:column;gap:10px;flex-shrink:0}
+.hero-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:180px;height:44px;border-radius:10px;
+  font-size:.92rem;font-weight:600;text-decoration:none;
+  cursor:pointer;transition:all .25s;
+  border:1px solid transparent;
 }
-.install-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(16,185,129,.45)}
-.install-btn:active{transform:translateY(0)}
-
-/* Author Button */
-.btn-author-hero{
-  display:inline-flex;align-items:center;gap:6px;
-  margin-top:14px;padding:8px 20px;font-size:.85rem;font-weight:500;
-  color:var(--text2);background:var(--glass-bg);
-  border:1px solid var(--glass-border);border-radius:10px;
-  cursor:pointer;text-decoration:none;transition:all .25s;
+.hero-btn svg{flex-shrink:0}
+.hero-btn-install{
+  color:#fff;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));
+  box-shadow:0 3px 14px rgba(16,185,129,.25);
+}
+.hero-btn-install:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(16,185,129,.4)}
+.hero-btn-author{
+  color:var(--text);background:var(--glass-bg);
+  border-color:var(--glass-border);
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
 }
-.btn-author-hero:hover{border-color:var(--accent);color:var(--accent);background:rgba(16,185,129,.06)}
-.btn-author-hero svg{flex-shrink:0}
+.hero-btn-author:hover{border-color:var(--accent);color:var(--accent);background:rgba(16,185,129,.06)}
+.hero-btn-source{
+  color:var(--text);background:var(--glass-bg);
+  border-color:var(--glass-border);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.hero-btn-source:hover{border-color:var(--accent);color:var(--accent);background:rgba(16,185,129,.06)}
+
+@media(max-width:640px){
+  .hero{flex-direction:column;text-align:center}
+  .hero-btns{flex-direction:row;flex-wrap:wrap;justify-content:center}
+  .hero-btn{width:160px}
+}
 
 /* Features */
 .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;padding:32px 0}
@@ -176,7 +189,6 @@ footer a{color:var(--text3);text-decoration:none}
 footer a:hover{color:var(--text2)}
 
 @media(max-width:600px){
-  .hero{padding:60px 0 32px}
   .features{grid-template-columns:1fr}
   .theme-toggle{top:12px;right:16px}
 }
@@ -193,15 +205,21 @@ footer a:hover{color:var(--text2)}
 <div class="container">
 
 <div class="hero">
-<h1>Qwen Studio 美化脚本</h1>
-<p>为 Qwen Studio 添加毛玻璃亚克力效果、自定义背景、主题色、字体，让你的 AI 工作台更好看。</p>
-<div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-  <a class="install-btn" href="https://raw.githubusercontent.com/hxtx-hi/Qwen-Studio-Beautify/main/qwen-studio-beautify.user.js">
+<div class="hero-text">
+  <h1>Qwen Studio 美化脚本</h1>
+  <p>为 Qwen Studio 添加毛玻璃亚克力效果、自定义背景、主题色、字体，让你的 AI 工作台更好看。</p>
+</div>
+<div class="hero-btns">
+  <a class="hero-btn hero-btn-install" href="https://raw.githubusercontent.com/hxtx-hi/Qwen-Studio-Beautify/main/qwen-studio-beautify.user.js">
     <span>⚡</span> 立即安装
   </a>
-  <a class="btn-author-hero" href="https://github.com/hxtx-hi" target="_blank" title="前往作者主页">
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-    🐙 前往作者主页
+  <a class="hero-btn hero-btn-author" href="https://github.com/hxtx-hi" target="_blank" title="前往作者主页">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+    前往作者主页
+  </a>
+  <a class="hero-btn hero-btn-source" href="https://github.com/hxtx-hi/Qwen-Studio-Beautify" target="_blank" title="查看源码">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 110-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm1.5-1.5a1 1 0 00-1 1v9.154A.997.997 0 013 12h9V1.5H4.5zM5 12h6v1.5H5V12z"/></svg>
+    源码
   </a>
 </div>
 </div>
