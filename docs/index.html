@@ -184,6 +184,15 @@ body{
 .hero-btn-pan-tip a:hover{text-decoration:underline}
 .hero-btn-row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;width:100%}
 
+/* Screenshots */
+.screenshots-section{padding:16px 0 8px}
+.screenshots-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;padding:8px 0}
+.screenshot-card{padding:12px;overflow:hidden;display:flex;flex-direction:column;align-items:center}
+.screenshot-card img{width:100%;border-radius:10px;display:block;transition:transform .3s}
+.screenshot-card:hover img{transform:scale(1.02)}
+.screenshot-card:hover{transform:translateY(-4px)}
+.screenshot-caption{margin-top:10px;font-size:.8rem;color:var(--text2);text-align:center}
+
 /* Features */
 .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;padding:32px 0}
 .feature{padding:28px}
@@ -370,6 +379,7 @@ footer .links{margin-bottom:8px}
   .hero-btn{width:100%;max-width:280px}
   .hero-btn-row{flex-direction:column;align-items:center}
   .hero-btn-pan-wrap{max-width:280px}
+  .screenshots-grid{grid-template-columns:1fr}
   .modal-box{padding:28px 20px 20px}
   .modal-box .code-display{font-size:1.6rem}
 }
@@ -418,6 +428,21 @@ footer .links{margin-bottom:8px}
       </a>
     </div>
   </div>
+</div>
+
+<!-- Screenshots -->
+<div class="screenshots-section">
+<h2 class="section-title">效果预览</h2>
+<div class="screenshots-grid">
+  <div class="screenshot-card glass">
+    <img id="ss-home" alt="Qwen Studio 美化效果 - 主页" loading="lazy">
+    <p class="screenshot-caption">自定义背景 + 毛玻璃效果主页</p>
+  </div>
+  <div class="screenshot-card glass">
+    <img id="ss-chat" alt="Qwen Studio 美化效果 - 对话" loading="lazy">
+    <p class="screenshot-caption">对话界面 + 亚克力气泡</p>
+  </div>
+</div>
 </div>
 
 <!-- Features -->
@@ -581,6 +606,34 @@ footer .links{margin-bottom:8px}
 </div>
 
 <script>
+// Dynamic screenshot loading: Chinese users prefer Gitee, international users prefer GitHub
+(function(){
+  var lang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+  var isCN = lang.indexOf('zh') === 0;
+  var base = isCN
+    ? 'https://gitee.com/hxtx-hi/Qwen-Studio-Beautify/raw/main/docs/screenshots/'
+    : 'https://raw.githubusercontent.com/hxtx-hi/Qwen-Studio-Beautify/main/docs/screenshots/';
+  var fallback = isCN
+    ? 'https://raw.githubusercontent.com/hxtx-hi/Qwen-Studio-Beautify/main/docs/screenshots/'
+    : 'https://gitee.com/hxtx-hi/Qwen-Studio-Beautify/raw/main/docs/screenshots/';
+
+  var imgs = [
+    { id: 'ss-home', file: 'preview-home.jpg' },
+    { id: 'ss-chat', file: 'preview-chat.jpg' }
+  ];
+
+  imgs.forEach(function(item) {
+    var el = document.getElementById(item.id);
+    if (!el) return;
+    el.src = base + item.file;
+    el.onerror = function() {
+      if (this.src.indexOf(fallback) === -1) {
+        this.src = fallback + item.file;
+      }
+    };
+  });
+})();
+
 function toggleTheme(){
   var sunSVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
   var moonSVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
