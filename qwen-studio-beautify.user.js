@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Qwen Studio Beautify
 // @namespace    https://chat.qwen.ai/
-// @version      6.9.5
+// @version      6.9.10
 // @description  Acrylic effect, custom background (image/video), HSV theme color, custom font, hide footer
 // @author       You
 // @match        https://chat.qwen.ai/*
@@ -544,6 +544,24 @@
         html.dark .ant-dropdown-menu-item:hover,\
         html.dark .ant-dropdown-menu-item-active {\
             background: rgba(100, 130, 240, 0.15) !important;\
+        }\
+        /* Acrylic effect for plus button and mode-select button only */\
+        html .temporary-chat-entry,\
+        html .mode-select .mode-select-open {\
+            background: rgba(255, 255, 255, 0.45) !important;\
+            backdrop-filter: blur(16px) saturate(180%) !important;\
+            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;\
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;\
+        }\
+        html.dark .temporary-chat-entry,\
+        html.dark .mode-select .mode-select-open {\
+            background: rgba(30, 30, 35, 0.45) !important;\
+            border-color: rgba(255, 255, 255, 0.1) !important;\
+        }\
+        /* Loading skeleton transparency */\
+        html .chat-detail-skeleton,\
+        html .chat-detail-skeleton-group {\
+            background: transparent !important;\
         }\
         .qwen-chat-thinking-and-sources {\
             background: rgba(255, 255, 255, 0.6) !important;\
@@ -1710,6 +1728,7 @@
         '.header-mobile', '.chat-header',
         '.qwen-textarea-container', '.qwen-textarea',
         '.app', '#root',
+        '.chat-detail-skeleton',
         '.response-message-content', '.container-response-message-content',
         '.auth-layout', '.qwenchat-auth-pc-top',
         '.qwen-chat-thinking-and-sources-header',
@@ -1735,6 +1754,8 @@
         '.ant-select-dropdown',
         '.mode-select-dropdown',
         '.qwen-dropdown-menu',
+        '.temporary-chat-entry',
+        '.mode-select .mode-select-open',
         '.qwen-chat-thinking-and-sources',
         '#qb-theme-modal-backdrop', '#qb-theme-modal',
         '#qb-font-modal-backdrop', '#qb-font-modal'
