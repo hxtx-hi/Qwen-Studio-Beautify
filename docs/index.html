@@ -210,25 +210,10 @@ footer a:hover{color:var(--text2)}
   <p>为 Qwen Studio 添加毛玻璃亚克力效果、自定义背景、主题色、字体，让你的 AI 工作台更好看。</p>
 </div>
 <div class="hero-btns">
-  <div class="hero-btn hero-btn-install" style="position:relative;padding:0">
-    <a id="installLink" href="#" style="display:flex;align-items:center;gap:8px;color:#fff;text-decoration:none;flex:1;justify-content:center;height:100%;padding:0 14px" onclick="doInstall(event)">
-      <span>⚡</span> <span id="installText">立即安装</span>
-    </a>
-    <div style="width:1px;height:24px;background:rgba(255,255,255,.25)"></div>
-    <div onclick="toggleDropdown(event)" style="padding:0 10px;cursor:pointer;display:flex;align-items:center;height:100%" title="选择下载源">
-      <svg id="dropdownArrow" width="12" height="12" viewBox="0 0 12 12" fill="#fff" style="transition:transform .2s"><path d="M2 4.5l4 4 4-4" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </div>
-    <div id="dropdownMenu" style="display:none;position:absolute;top:calc(100% + 6px);right:0;min-width:180px;border-radius:10px;overflow:hidden;z-index:50;background:var(--surface-solid);border:1px solid var(--border);box-shadow:var(--shadow-lg)">
-      <a href="https://gitee.com/hxtx-hi/Qwen-Studio-Beautify/releases/download/v6.9.3/qwen-studio-beautify.user.js" class="dropdown-item" onclick="selectSource('gitee',event)">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="#c1272d"><path d="M8 0C3.58 0 0 3.58 0 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm4.27 10.46c-.18.32-.56.44-.88.27l-2.47-1.3c-.32-.17-.45-.55-.28-.87.17-.32.55-.45.87-.28l2.47 1.3c.32.17.45.55.28.87zM11.5 8.5c0 1.93-1.57 3.5-3.5 3.5S4.5 10.43 4.5 8.5 6.07 5 8 5s3.5 1.57 3.5 3.5z"/></svg>
-        <span>Gitee 下载</span>
-      </a>
-      <a href="https://raw.githubusercontent.com/hxtx-hi/Qwen-Studio-Beautify/main/qwen-studio-beautify.user.js" class="dropdown-item" onclick="selectSource('github',event)">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="#333"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-        <span>GitHub 下载</span>
-      </a>
-    </div>
-  </div>
+  <a class="hero-btn hero-btn-install" id="installLink" href="https://raw.githubusercontent.com/hxtx-hi/Qwen-Studio-Beautify/main/qwen-studio-beautify.user.js" style="display:flex;align-items:center;gap:8px;color:#fff;text-decoration:none;justify-content:center;padding:0 14px" onclick="doInstall(event)">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="#fff"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+    <span id="installText">GitHub 下载</span>
+  </a>
   <a class="hero-btn hero-btn-author" href="https://github.com/hxtx-hi" target="_blank" title="前往作者主页">
     <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
     前往作者主页
@@ -322,7 +307,7 @@ footer a:hover{color:var(--text2)}
 </div>
 
 <footer>
-<p>Qwen Studio Beautify v6.9.3 · <a href="https://github.com/hxtx-hi/Qwen-Studio-Beautify">GitHub</a> · <a href="https://gitee.com/hxtx-hi/Qwen-Studio-Beautify">Gitee</a></p>
+<p>Qwen Studio Beautify v6.9.10 · <a href="https://github.com/hxtx-hi/Qwen-Studio-Beautify">GitHub</a> · <a href="https://gitee.com/hxtx-hi/Qwen-Studio-Beautify">Gitee</a></p>
 </footer>
 
 </div>
@@ -341,55 +326,11 @@ function toggleTheme(){
     document.documentElement.setAttribute('data-theme',saved);
     document.getElementById('themeKnob').textContent=saved==='light'?'☀️':'🌙';
   }
-  // Detect system language — default to Gitee for Chinese
-  var lang=(navigator.language||navigator.userLanguage||'').toLowerCase();
-  var isChinese=lang.indexOf('zh')===0;
-  var defaultSource=isChinese?'gitee':'github';
-  localStorage.setItem('qsb-source',defaultSource);
-  updateInstallBtn(defaultSource);
 })();
 
-var SOURCES={
-  gitee:{url:'https://gitee.com/hxtx-hi/Qwen-Studio-Beautify/releases/download/v6.9.3/qwen-studio-beautify.user.js',label:'Gitee 下载'},
-  github:{url:'https://raw.githubusercontent.com/hxtx-hi/Qwen-Studio-Beautify/main/qwen-studio-beautify.user.js',label:'GitHub 下载'}
-};
-
-function updateInstallBtn(src){
-  var s=SOURCES[src]||SOURCES.github;
-  document.getElementById('installLink').href=s.url;
-  document.getElementById('installText').textContent=s.label;
-}
-
 function doInstall(e){
-  var src=localStorage.getItem('qsb-source')||'github';
-  var s=SOURCES[src];
-  // Let the link navigate naturally
+  // Let the link navigate naturally to GitHub
 }
-
-function toggleDropdown(e){
-  e.stopPropagation();
-  var menu=document.getElementById('dropdownMenu');
-  var arrow=document.getElementById('dropdownArrow');
-  var open=menu.style.display==='none';
-  menu.style.display=open?'block':'none';
-  arrow.style.transform=open?'rotate(180deg)':'';
-}
-
-function selectSource(src,e){
-  e.preventDefault();
-  localStorage.setItem('qsb-source',src);
-  updateInstallBtn(src);
-  document.getElementById('dropdownMenu').style.display='none';
-  document.getElementById('dropdownArrow').style.transform='';
-  // Trigger download
-  window.location.href=SOURCES[src].url;
-}
-
-// Close dropdown on outside click
-document.addEventListener('click',function(){
-  document.getElementById('dropdownMenu').style.display='none';
-  document.getElementById('dropdownArrow').style.transform='';
-});
 </script>
 
 <style>
@@ -404,3 +345,4 @@ document.addEventListener('click',function(){
 </style>
 </body>
 </html>
+
