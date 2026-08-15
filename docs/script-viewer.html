@@ -412,14 +412,14 @@ footer .links{margin-bottom:8px}
 <div style="max-width:1000px;margin:20px auto;padding:0 16px">
   <div style="overflow:hidden;background:var(--surface-solid);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)" id="codeCard">
     <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-      <span style="font-size:.8rem;color:var(--text3)">1944 行 · 86.4 KB</span>
-      <span style="font-size:.78rem;color:var(--text3)">最后更新 2026-08-15 09:26</span>
+      <span style="font-size:.8rem;color:var(--text3)">2149 行 · 95.7 KB</span>
+      <span style="font-size:.78rem;color:var(--text3)">最后更新 2026-08-15 09:47</span>
     </div>
     <pre class="code-block-pre"><code id="codeBlock">// ==UserScript==
 // @name         Qwen Studio Beautify
 // @namespace    https://chat.qwen.ai/
-// @version      6.9.10
-// @description  Acrylic effect, custom background (image/video), HSV theme color, custom font, hide footer
+// @version      6.9.11
+// @description  Acrylic effect, custom background (image/video), HSV theme color, custom font, hide footer, light/dark mode toggle
 // @author       You
 // @match        https://chat.qwen.ai/*
 // @grant        GM_addStyle
@@ -494,8 +494,8 @@ footer .links{margin-bottom:8px}
         catch (e) { try { localStorage.setItem(key, typeof val === &#x27;string&#x27; ? val : String(val)); } catch (e2) {} }
     }
 
-    function getStoredBgType() { return gmGet(&#x27;qwen_bg_type&#x27;, &#x27;&#x27;); }
-    function setStoredBgType(t) { gmSet(&#x27;qwen_bg_type&#x27;, t); }
+    function getStoredBgType() { return gmGet(getBgTypeStorageKey(), &#x27;&#x27;); }
+    function setStoredBgType(t) { gmSet(getBgTypeStorageKey(), t); }
     function getStoredOpacity() { var v = gmGet(&#x27;qwen_bg_opacity&#x27;, 1); return typeof v === &#x27;string&#x27; ? parseFloat(v || &#x27;1&#x27;) : v; }
     function storeOpacity(v) { gmSet(&#x27;qwen_bg_opacity&#x27;, v); }
     function getStoredPos() { return gmGet(&#x27;qwen_panel_pos&#x27;, &#x27;&#x27;); }
@@ -506,6 +506,32 @@ footer .links{margin-bottom:8px}
     function storeFont(f) { gmSet(&#x27;qwen_font&#x27;, f); }
     function getStoredAcrylic() { return gmGet(&#x27;qwen_acrylic&#x27;, &#x27;1&#x27;) === &#x27;1&#x27;; }
     function storeAcrylic(v) { gmSet(&#x27;qwen_acrylic&#x27;, v ? &#x27;1&#x27; : &#x27;0&#x27;); }
+
+    /* Dark mode: &#x27;light&#x27; or &#x27;dark&#x27; */
+    function getStoredDarkMode() { var v = gmGet(&#x27;qwen_dark_mode&#x27;, &#x27;light&#x27;); return v === &#x27;auto&#x27; ? &#x27;light&#x27; : v; }
+    function storeDarkMode(v) { gmSet(&#x27;qwen_dark_mode&#x27;, v); }
+
+    /* Dual background: separate backgrounds for light/dark mode */
+    function getStoredDualBg() { return gmGet(&#x27;qwen_bg_dual&#x27;, &#x27;0&#x27;) === &#x27;1&#x27;; }
+    function storeDualBg(v) { gmSet(&#x27;qwen_bg_dual&#x27;, v ? &#x27;1&#x27; : &#x27;0&#x27;); }
+
+    function isDarkModeActive() { return getStoredDarkMode() === &#x27;dark&#x27;; }
+
+    /* Mode-aware storage key for background type */
+    function getBgTypeStorageKey() {
+        if (getStoredDualBg()) {
+            return isDarkModeActive() ? &#x27;qwen_bg_type_dark&#x27; : &#x27;qwen_bg_type_light&#x27;;
+        }
+        return &#x27;qwen_bg_type&#x27;;
+    }
+
+    /* Mode-aware IDB key for background blobs */
+    function getBgIdbKey(baseKey) {
+        if (getStoredDualBg()) {
+            return baseKey + &#x27;_&#x27; + (isDarkModeActive() ? &#x27;dark&#x27; : &#x27;light&#x27;);
+        }
+        return baseKey;
+    }
 
     /* Class-based selectors prefixed with html for higher specificity than Qwen&#x27;s own CSS */
     var ACRYLIC_CSS_SELECTORS = [
@@ -619,6 +645,38 @@ footer .links{margin-bottom:8px}
         /* Append to end of head to ensure it comes after any dynamically injected styles */
         document.head.appendChild(existing);
         enforceAcrylicOff();
+    }
+
+    /* Apply dark mode: &#x27;light&#x27; or &#x27;dark&#x27; */
+    var _darkModeObserver = null;
+    function applyDarkMode(mode) {
+        var html = document.documentElement;
+        if (mode === &#x27;light&#x27;) {
+            html.classList.remove(&#x27;dark&#x27;);
+            html.classList.add(&#x27;light&#x27;);
+        } else {
+            html.classList.add(&#x27;dark&#x27;);
+            html.classList.remove(&#x27;light&#x27;);
+        }
+        /* Watch for website trying to override our forced mode */
+        if (!_darkModeObserver) {
+            _darkModeObserver = new MutationObserver(function () {
+                var currentMode = getStoredDarkMode();
+                if (currentMode === &#x27;light&#x27; &amp;&amp; html.classList.contains(&#x27;dark&#x27;)) {
+                    html.classList.remove(&#x27;dark&#x27;);
+                    html.classList.add(&#x27;light&#x27;);
+                } else if (currentMode === &#x27;dark&#x27; &amp;&amp; !html.classList.contains(&#x27;dark&#x27;)) {
+                    html.classList.add(&#x27;dark&#x27;);
+                    html.classList.remove(&#x27;light&#x27;);
+                }
+            });
+            _darkModeObserver.observe(html, { attributes: true, attributeFilter: [&#x27;class&#x27;] });
+        }
+        /* Update opacity overlay if active */
+        var opacity = getStoredOpacity();
+        if (opacity &lt; 1) {
+            ensureOpacityOverlay(opacity);
+        }
     }
 
     function applyFont(fontFamily) {
@@ -1300,7 +1358,11 @@ footer .links{margin-bottom:8px}
             document.documentElement.appendChild(overlay);
         }
         var maskAlpha = 1 - opacity;
-        var isDark = document.documentElement.classList.contains(&#x27;dark&#x27;);
+        var forcedMode = getStoredDarkMode();
+        var isDark;
+        if (forcedMode === &#x27;light&#x27;) isDark = false;
+        else if (forcedMode === &#x27;dark&#x27;) isDark = true;
+        else isDark = document.documentElement.classList.contains(&#x27;dark&#x27;);
         var color = isDark ? &#x27;rgba(20,20,25,&#x27; + maskAlpha + &#x27;)&#x27; : &#x27;rgba(255,255,255,&#x27; + maskAlpha + &#x27;)&#x27;;
         overlay.style.setProperty(&#x27;background&#x27;, color, &#x27;important&#x27;);
     }
@@ -1308,6 +1370,47 @@ footer .links{margin-bottom:8px}
     function removeOpacityOverlay() {
         var overlay = document.getElementById(&#x27;qwen-bg-opacity-overlay&#x27;);
         if (overlay) overlay.remove();
+    }
+
+    /* Apply pure black background (default for dark mode when dual bg is on and no bg uploaded) */
+    function applyPureBlackBackground() {
+        revokeBgUrl();
+        removeImageBackground();
+        removeVideoBackground();
+        var bgLayer = document.getElementById(&#x27;qwen-custom-bg-layer&#x27;);
+        if (!bgLayer) {
+            bgLayer = document.createElement(&#x27;div&#x27;);
+            bgLayer.id = &#x27;qwen-custom-bg-layer&#x27;;
+            bgLayer.style.cssText = &#x27;position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;pointer-events:none!important;z-index:-2!important;&#x27;;
+            document.documentElement.appendChild(bgLayer);
+        }
+        bgLayer.style.setProperty(&#x27;background-image&#x27;, &#x27;none&#x27;, &#x27;important&#x27;);
+        bgLayer.style.setProperty(&#x27;background-color&#x27;, &#x27;#000000&#x27;, &#x27;important&#x27;);
+        document.documentElement.style.setProperty(&#x27;background-color&#x27;, &#x27;#000000&#x27;, &#x27;important&#x27;);
+        removeOpacityOverlay();
+    }
+
+    /* Switch background when dark mode changes (dual bg mode) */
+    function switchBackgroundForMode() {
+        clearBackground();
+        var bgType = getStoredBgType();
+        if (bgType === &#x27;image&#x27; || bgType === &#x27;video&#x27;) {
+            bgRestoring = true;
+            idbGet(getBgIdbKey(bgType)).then(function (blob) {
+                if (blob &amp;&amp; !_currentBgUrl) {
+                    var url = URL.createObjectURL(blob);
+                    if (bgType === &#x27;image&#x27;) {
+                        applyImageBackground(url, getStoredOpacity());
+                    } else {
+                        applyVideoBackground(url, getStoredOpacity());
+                    }
+                }
+                bgRestoring = false;
+            }).catch(function () { bgRestoring = false; });
+        } else if (isDarkModeActive()) {
+            /* Dark mode with no bg uploaded: pure black */
+            applyPureBlackBackground();
+        }
     }
 
     function hsvToRgb(h, s, v) {
@@ -1944,12 +2047,18 @@ footer .links{margin-bottom:8px}
                     &lt;span id=&quot;qb-opacity-val&quot;&gt;100%&lt;/span&gt;\
                 &lt;/div&gt;\
                 &lt;button class=&quot;qb-btn danger&quot; id=&quot;qb-clear-bg&quot;&gt;\u6e05\u9664\u80cc\u666f&lt;/button&gt;\
+                &lt;button class=&quot;qb-btn&quot; id=&quot;qb-toggle-dualbg&quot;&gt;\
+                    &lt;span id=&quot;qb-dualbg-text&quot;&gt;\u660e\u6697\u72ec\u7acb\u80cc\u666f: \u5173\u95ed&lt;/span&gt;\
+                &lt;/button&gt;\
                 &lt;div class=&quot;qb-section-label&quot;&gt;\u4e3b\u9898\u4e0e\u5b57\u4f53&lt;/div&gt;\
                 &lt;button class=&quot;qb-btn&quot; id=&quot;qb-open-theme&quot;&gt;\u4fee\u6539\u4e3b\u9898\u8272&lt;/button&gt;\
                 &lt;button class=&quot;qb-btn&quot; id=&quot;qb-open-font&quot;&gt;\u4fee\u6539\u5b57\u4f53&lt;/button&gt;\
                 &lt;div class=&quot;qb-section-label&quot;&gt;\u5176\u4ed6&lt;/div&gt;\
                 &lt;button class=&quot;qb-btn&quot; id=&quot;qb-toggle-acrylic&quot;&gt;\
                     &lt;span id=&quot;qb-acrylic-text&quot;&gt;\u4e9a\u514b\u529b\u6548\u679c: \u5f00\u542f&lt;/span&gt;\
+                &lt;/button&gt;\
+                &lt;button class=&quot;qb-btn&quot; id=&quot;qb-toggle-darkmode&quot;&gt;\
+                    &lt;span id=&quot;qb-darkmode-text&quot;&gt;\u660e\u6697\u6a21\u5f0f: \u6d45\u8272&lt;/span&gt;\
                 &lt;/button&gt;\
                 &lt;button class=&quot;qb-btn&quot; id=&quot;qb-toggle-disclaimer&quot;&gt;\
                     &lt;span id=&quot;qb-disclaimer-text&quot;&gt;\u5e95\u90e8\u58f0\u660e\u5df2\u9690\u85cf&lt;/span&gt;\
@@ -1966,9 +2075,14 @@ footer .links{margin-bottom:8px}
 
         function updateBgStatus() {
             var type = getStoredBgType();
-            if (type === &#x27;image&#x27;) bgStatus.textContent = &#x27;\u5f53\u524d: \u56fe\u7247\u80cc\u666f&#x27;;
-            else if (type === &#x27;video&#x27;) bgStatus.textContent = &#x27;\u5f53\u524d: \u89c6\u9891\u80cc\u666f&#x27;;
-            else bgStatus.textContent = &#x27;\u5f53\u524d: \u65e0\u80cc\u666f&#x27;;
+            var prefix = &#x27;&#x27;;
+            if (getStoredDualBg()) {
+                prefix = isDarkModeActive() ? &#x27;[\u6697\u8272] &#x27; : &#x27;[\u4eae\u8272] &#x27;;
+            }
+            if (type === &#x27;image&#x27;) bgStatus.textContent = prefix + &#x27;\u5f53\u524d: \u56fe\u7247\u80cc\u666f&#x27;;
+            else if (type === &#x27;video&#x27;) bgStatus.textContent = prefix + &#x27;\u5f53\u524d: \u89c6\u9891\u80cc\u666f&#x27;;
+            else if (!type &amp;&amp; getStoredDualBg() &amp;&amp; isDarkModeActive()) bgStatus.textContent = prefix + &#x27;\u5f53\u524d: \u7eaf\u9ed1\u80cc\u666f&#x27;;
+            else bgStatus.textContent = prefix + &#x27;\u5f53\u524d: \u65e0\u80cc\u666f&#x27;;
         }
         updateBgStatus();
 
@@ -1994,8 +2108,8 @@ footer .links{margin-bottom:8px}
             var file = e.target.files[0];
             if (!file) return;
             var blob = file.slice(0, file.size, file.type);
-            idbPut(&#x27;image&#x27;, blob).then(function () {
-                idbDelete(&#x27;video&#x27;).then(function () {
+            idbPut(getBgIdbKey(&#x27;image&#x27;), blob).then(function () {
+                idbDelete(getBgIdbKey(&#x27;video&#x27;)).then(function () {
                     setStoredBgType(&#x27;image&#x27;);
                     var url = URL.createObjectURL(blob);
                     applyImageBackground(url, getStoredOpacity());
@@ -2013,8 +2127,8 @@ footer .links{margin-bottom:8px}
             var file = e.target.files[0];
             if (!file) return;
             var blob = file.slice(0, file.size, file.type);
-            idbPut(&#x27;video&#x27;, blob).then(function () {
-                idbDelete(&#x27;image&#x27;).then(function () {
+            idbPut(getBgIdbKey(&#x27;video&#x27;), blob).then(function () {
+                idbDelete(getBgIdbKey(&#x27;image&#x27;)).then(function () {
                     setStoredBgType(&#x27;video&#x27;);
                     var url = URL.createObjectURL(blob);
                     applyVideoBackground(url, getStoredOpacity());
@@ -2037,8 +2151,8 @@ footer .links{margin-bottom:8px}
         });
 
         document.getElementById(&#x27;qb-clear-bg&#x27;).addEventListener(&#x27;click&#x27;, function () {
-            idbDelete(&#x27;image&#x27;);
-            idbDelete(&#x27;video&#x27;);
+            idbDelete(getBgIdbKey(&#x27;image&#x27;));
+            idbDelete(getBgIdbKey(&#x27;video&#x27;));
             setStoredBgType(&#x27;&#x27;);
             clearBackground();
             updateBgStatus();
@@ -2067,6 +2181,84 @@ footer .links{margin-bottom:8px}
             storeAcrylic(acrylicEnabled);
             applyAcrylic(acrylicEnabled);
             updateAcrylicText();
+        });
+
+        /* Dark mode toggle: light &lt;-&gt; dark */
+        var darkModeLabels = {
+            &#x27;light&#x27;: &#x27;\u660e\u6697\u6a21\u5f0f: \u6d45\u8272&#x27;,
+            &#x27;dark&#x27;: &#x27;\u660e\u6697\u6a21\u5f0f: \u6df1\u8272&#x27;
+        };
+        var currentDarkMode = getStoredDarkMode();
+        var darkModeBtn = document.getElementById(&#x27;qb-toggle-darkmode&#x27;);
+        var darkModeText = document.getElementById(&#x27;qb-darkmode-text&#x27;);
+        function updateDarkModeText() {
+            darkModeText.textContent = darkModeLabels[currentDarkMode] || darkModeLabels[&#x27;light&#x27;];
+        }
+        updateDarkModeText();
+        darkModeBtn.addEventListener(&#x27;click&#x27;, function () {
+            currentDarkMode = currentDarkMode === &#x27;light&#x27; ? &#x27;dark&#x27; : &#x27;light&#x27;;
+            storeDarkMode(currentDarkMode);
+            applyDarkMode(currentDarkMode);
+            updateDarkModeText();
+            /* If dual background is on, switch to the new mode&#x27;s background */
+            if (getStoredDualBg()) {
+                switchBackgroundForMode();
+                updateBgStatus();
+            }
+        });
+
+        /* Dual background toggle */
+        var dualBgEnabled = getStoredDualBg();
+        var dualBgBtn = document.getElementById(&#x27;qb-toggle-dualbg&#x27;);
+        var dualBgText = document.getElementById(&#x27;qb-dualbg-text&#x27;);
+        function updateDualBgText() {
+            dualBgText.textContent = dualBgEnabled ? &#x27;\u660e\u6697\u72ec\u7acb\u80cc\u666f: \u5f00\u542f&#x27; : &#x27;\u660e\u6697\u72ec\u7acb\u80cc\u666f: \u5173\u95ed&#x27;;
+        }
+        updateDualBgText();
+        dualBgBtn.addEventListener(&#x27;click&#x27;, function () {
+            dualBgEnabled = !dualBgEnabled;
+            storeDualBg(dualBgEnabled);
+            updateDualBgText();
+            if (dualBgEnabled) {
+                /* Migrate current background to current mode */
+                var oldType = gmGet(&#x27;qwen_bg_type&#x27;, &#x27;&#x27;);
+                if (oldType) {
+                    gmSet(getBgTypeStorageKey(), oldType);
+                    idbGet(oldType).then(function (blob) {
+                        if (blob) idbPut(getBgIdbKey(oldType), blob);
+                    });
+                }
+                /* If dark mode and no dark bg uploaded, apply pure black */
+                if (isDarkModeActive() &amp;&amp; !getStoredBgType()) {
+                    clearBackground();
+                    applyPureBlackBackground();
+                }
+            } else {
+                /* Turning off: copy current mode&#x27;s bg to shared key */
+                var curType = getStoredBgType();
+                if (curType) {
+                    gmSet(&#x27;qwen_bg_type&#x27;, curType);
+                    idbGet(getBgIdbKey(curType)).then(function (blob) {
+                        if (blob) idbPut(curType, blob);
+                    });
+                }
+                /* Re-apply background from shared key */
+                clearBackground();
+                var sharedType = gmGet(&#x27;qwen_bg_type&#x27;, &#x27;&#x27;);
+                if (sharedType === &#x27;image&#x27; || sharedType === &#x27;video&#x27;) {
+                    bgRestoring = true;
+                    idbGet(sharedType).then(function (blob) {
+                        if (blob &amp;&amp; !_currentBgUrl) {
+                            var url = URL.createObjectURL(blob);
+                            if (sharedType === &#x27;image&#x27;) applyImageBackground(url, getStoredOpacity());
+                            else applyVideoBackground(url, getStoredOpacity());
+                        }
+                        bgRestoring = false;
+                        updateBgStatus();
+                    }).catch(function () { bgRestoring = false; });
+                }
+            }
+            updateBgStatus();
         });
 
         var disclaimerHidden = true;
@@ -2106,7 +2298,7 @@ footer .links{margin-bottom:8px}
         document.getElementById(&#x27;qb-init-script&#x27;).addEventListener(&#x27;click&#x27;, function () {
             if (!confirm(&#x27;\u786e\u8ba4\u6e05\u9664\u6240\u6709\u811a\u672c\u6570\u636e\uff08\u5305\u62ec\u80cc\u666f\u56fe\u7247/\u89c6\u9891\u3001\u4e3b\u9898\u8272\u3001\u5b57\u4f53\u3001\u4f4d\u7f6e\u7b49\u6240\u6709\u8bbe\u7f6e\uff09\u5e76\u5237\u65b0\u9875\u9762\uff1f&#x27;)) return;
             /* Clear GM storage keys */
-            var keys = [&#x27;qwen_bg_type&#x27;, &#x27;qwen_bg_opacity&#x27;, &#x27;qwen_panel_pos&#x27;, &#x27;qwen_theme_color&#x27;, &#x27;qwen_font&#x27;, &#x27;qwen_acrylic&#x27;, &#x27;qwen_custom_bg&#x27;];
+            var keys = [&#x27;qwen_bg_type&#x27;, &#x27;qwen_bg_opacity&#x27;, &#x27;qwen_panel_pos&#x27;, &#x27;qwen_theme_color&#x27;, &#x27;qwen_font&#x27;, &#x27;qwen_acrylic&#x27;, &#x27;qwen_dark_mode&#x27;, &#x27;qwen_bg_dual&#x27;, &#x27;qwen_bg_type_light&#x27;, &#x27;qwen_bg_type_dark&#x27;, &#x27;qwen_custom_bg&#x27;];
             keys.forEach(function (k) {
                 try { GM_setValue(k, &#x27;&#x27;); } catch (e) {}
                 try { localStorage.removeItem(k); } catch (e) {}
@@ -2225,7 +2417,16 @@ footer .links{margin-bottom:8px}
     var bgRestoring = false;
     function enforceBackground() {
         var bgType = getStoredBgType();
-        if (!bgType) return;
+        if (!bgType) {
+            /* If dual bg on and dark mode, ensure pure black */
+            if (getStoredDualBg() &amp;&amp; isDarkModeActive()) {
+                var blackLayer = document.getElementById(&#x27;qwen-custom-bg-layer&#x27;);
+                if (!blackLayer || blackLayer.style.backgroundColor !== &#x27;rgb(0, 0, 0)&#x27;) {
+                    applyPureBlackBackground();
+                }
+            }
+            return;
+        }
         if (_currentBgUrl) return;
         var existing = bgType === &#x27;image&#x27;
             ? document.getElementById(&#x27;qwen-custom-bg-layer&#x27;)
@@ -2233,7 +2434,7 @@ footer .links{margin-bottom:8px}
         if (existing) return;
         if (bgRestoring) return;
         bgRestoring = true;
-        idbGet(bgType).then(function (blob) {
+        idbGet(getBgIdbKey(bgType)).then(function (blob) {
             if (blob &amp;&amp; !_currentBgUrl) {
                 var url = URL.createObjectURL(blob);
                 if (bgType === &#x27;image&#x27;) {
@@ -2253,10 +2454,11 @@ footer .links{margin-bottom:8px}
         createPanel();
         applyFont(getStoredFont());
         applyAcrylic(getStoredAcrylic());
+        applyDarkMode(getStoredDarkMode());
         var bgType = getStoredBgType();
         if (bgType === &#x27;image&#x27; || bgType === &#x27;video&#x27;) {
             bgRestoring = true;
-            idbGet(bgType).then(function (blob) {
+            idbGet(getBgIdbKey(bgType)).then(function (blob) {
                 if (blob &amp;&amp; !_currentBgUrl) {
                     var url = URL.createObjectURL(blob);
                     if (bgType === &#x27;image&#x27;) {
@@ -2267,6 +2469,9 @@ footer .links{margin-bottom:8px}
                 }
                 bgRestoring = false;
             });
+        } else if (getStoredDualBg() &amp;&amp; isDarkModeActive()) {
+            /* Dark mode with dual bg on and no bg uploaded: pure black */
+            applyPureBlackBackground();
         }
         var themeColor = getStoredThemeColor();
         if (themeColor) applyThemeColor(themeColor);
@@ -2364,7 +2569,7 @@ footer .links{margin-bottom:8px}
 
 <!-- Footer -->
 <footer style="text-align:center;padding:20px;color:var(--footer-color);font-size:.8rem">
-  硬编码备份 · 最后更新 2026-08-15 09:26 · 请以 GitHub 为准
+  硬编码备份 · 最后更新 2026-08-15 09:47 · 请以 GitHub 为准
 </footer>
 
 <!-- Toast -->
