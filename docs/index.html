@@ -286,6 +286,79 @@ footer a{color:var(--text3);text-decoration:none;margin:0 6px}
 footer a:hover{color:var(--text2)}
 footer .links{margin-bottom:8px}
 
+/* Modal */
+.modal-overlay{
+  position:fixed;inset:0;z-index:1000;
+  background:rgba(0,0,0,.5);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s;
+  padding:20px;
+}
+.modal-overlay.show{opacity:1;pointer-events:auto}
+.modal-box{
+  background:var(--surface-solid);
+  border-radius:20px;
+  border:1px solid var(--border);
+  box-shadow:0 20px 60px rgba(0,0,0,.3);
+  max-width:420px;width:100%;
+  padding:36px 32px 28px;
+  text-align:center;
+  transform:scale(.9);transition:transform .3s;
+}
+.modal-overlay.show .modal-box{transform:scale(1)}
+.modal-box .modal-icon{
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 20px;
+  box-shadow:0 4px 20px rgba(99,102,241,.3);
+}
+.modal-box h3{
+  font-size:1.2rem;font-weight:700;color:var(--text);
+  margin-bottom:8px;
+}
+.modal-box .modal-desc{
+  font-size:.9rem;color:var(--text2);
+  margin-bottom:24px;line-height:1.6;
+}
+.modal-box .code-label{
+  font-size:.8rem;color:var(--text3);
+  margin-bottom:6px;
+}
+.modal-box .code-display{
+  font-size:2rem;font-weight:800;
+  color:#6366f1;
+  letter-spacing:.3em;
+  padding:16px 0;
+  margin-bottom:28px;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  font-family:"SF Mono","Fira Code",Consolas,monospace;
+}
+.modal-box .modal-btns{
+  display:flex;gap:12px;justify-content:center;
+}
+.modal-box .modal-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  height:46px;padding:0 24px;border-radius:12px;
+  font-size:.95rem;font-weight:600;text-decoration:none;
+  cursor:pointer;transition:all .25s;
+  border:1px solid transparent;
+}
+.modal-btn-go{
+  color:#fff;
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  box-shadow:0 4px 20px rgba(99,102,241,.3);
+}
+.modal-btn-go:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(99,102,241,.45)}
+.modal-btn-cancel{
+  color:var(--text);background:var(--glass-bg);
+  border-color:var(--glass-border);
+}
+.modal-btn-cancel:hover{border-color:var(--text3)}
+
 @media(max-width:640px){
   .hero{padding:56px 0 40px}
   .features{grid-template-columns:1fr}
@@ -294,6 +367,8 @@ footer .links{margin-bottom:8px}
   .hero-btn{width:100%;max-width:280px}
   .hero-btn-row{flex-direction:column;align-items:center}
   .hero-btn-pan-wrap{max-width:280px}
+  .modal-box{padding:28px 20px 20px}
+  .modal-box .code-display{font-size:1.6rem}
 }
 </style>
 </head>
@@ -324,11 +399,11 @@ footer .links{margin-bottom:8px}
       </a>
     </div>
     <div class="hero-btn-pan-wrap">
-      <a class="hero-btn hero-btn-pan" href="PAN_PLACEHOLDER" target="_blank" id="panBtn">
+      <button class="hero-btn hero-btn-pan" onclick="showPanModal()" id="panBtn" style="border:none;cursor:pointer">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         网盘下载
-      </a>
-      <p class="hero-btn-pan-tip">如果无法一键安装，可以<a href="PAN_PLACEHOLDER" target="_blank">点此下载</a></p>
+      </button>
+      <p class="hero-btn-pan-tip">如果无法一键安装，可以<a href="javascript:void(0)" onclick="showPanModal()">点此下载</a></p>
     </div>
     <div class="hero-btn-row">
       <a class="hero-btn hero-btn-author" href="https://github.com/hxtx-hi" target="_blank" title="前往作者主页">
@@ -526,7 +601,37 @@ function toggleTheme(){
 function doInstall(e){
   // Let the link navigate naturally to GitHub raw
 }
+
+/* Pan Download Modal */
+function showPanModal(){
+  document.getElementById('panModal').classList.add('show');
+}
+function hidePanModal(){
+  document.getElementById('panModal').classList.remove('show');
+}
 </script>
+
+<!-- Pan Download Modal -->
+<div class="modal-overlay" id="panModal" onclick="if(event.target===this)hidePanModal()">
+  <div class="modal-box">
+    <div class="modal-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </div>
+    <h3>即将前往蓝奏云下载</h3>
+    <p class="modal-desc">点击下方按钮跳转至蓝奏云网盘下载脚本文件</p>
+    <div class="code-label">提取密码</div>
+    <div class="code-display">00</div>
+    <div class="modal-btns">
+      <a class="modal-btn modal-btn-go" href="https://hxtx.lanzoub.com/b004jnmt3c" target="_blank" onclick="hidePanModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        立即前往
+      </a>
+      <button class="modal-btn modal-btn-cancel" onclick="hidePanModal()">
+        取消
+      </button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
