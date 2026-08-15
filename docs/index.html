@@ -606,31 +606,17 @@ footer .links{margin-bottom:8px}
 </div>
 
 <script>
-// Dynamic screenshot loading: Chinese users prefer Gitee, international users prefer GitHub
+// Screenshots are in the same repo, use relative paths (works on both GitHub Pages and Gitee Pages)
 (function(){
-  var lang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
-  var isCN = lang.indexOf('zh') === 0;
-  var base = isCN
-    ? 'https://gitee.com/hxtx-hi/Qwen-Studio-Beautify/raw/master/docs/screenshots/'
-    : 'https://raw.githubusercontent.com/hxtx-hi/Qwen-Studio-Beautify/main/docs/screenshots/';
-  var fallback = isCN
-    ? 'https://raw.githubusercontent.com/hxtx-hi/Qwen-Studio-Beautify/main/docs/screenshots/'
-    : 'https://gitee.com/hxtx-hi/Qwen-Studio-Beautify/raw/master/docs/screenshots/';
-
   var imgs = [
-    { id: 'ss-home', file: 'preview-home.jpg' },
-    { id: 'ss-chat', file: 'preview-chat.jpg' }
+    { id: 'ss-home', file: 'screenshots/preview-home.jpg' },
+    { id: 'ss-chat', file: 'screenshots/preview-chat.jpg' }
   ];
 
   imgs.forEach(function(item) {
     var el = document.getElementById(item.id);
     if (!el) return;
-    el.src = base + item.file;
-    el.onerror = function() {
-      if (this.src.indexOf(fallback) === -1) {
-        this.src = fallback + item.file;
-      }
-    };
+    el.src = item.file;
   });
 })();
 
