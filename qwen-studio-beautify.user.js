@@ -15,6 +15,13 @@
 (function () {
     'use strict';
 
+    /* Detect phone UA — hide sidebar on phones only; tablets/desktops/ChromeOS keep acrylic */
+    (function () {
+        var ua = navigator.userAgent || '';
+        var isPhone = /Android.*Mobile|iPhone|iPod|Windows Phone|BlackBerry|Opera Mini|IEMobile/i.test(ua);
+        if (isPhone) document.documentElement.classList.add('qb-phone-ua');
+    })();
+
     var STYLE_ID = 'qwen-beautify-style';
     var THEME_STYLE_ID = 'qwen-beautify-theme';
     var DB_NAME = 'qwen_beautify';
@@ -259,10 +266,6 @@
         style.id = STYLE_ID;
         style.textContent = '\
         .chat-footer, .chat-container-statement { display: none !important; }\
-        .splitter-container-right-panel > div:not([class*="message"]):not([class*="input"]) { background-color: transparent !important; }\
-        .chat-content::after, .chat-container::after { display: none !important; }\
-        .chat-messages-container > div:last-child { margin-bottom: 0 !important; padding-bottom: 0 !important; }\
-        .chat-content, .chat-container, .chat-messages-container { overflow: hidden !important; }\
         \
         .chat-response-message-right,\
         .chat-response-message-right-touch {\
@@ -459,6 +462,17 @@
         html.mobile .sidebar-wrapper-mask .mask {\
             backdrop-filter: blur(4px) !important;\
             -webkit-backdrop-filter: blur(4px) !important;\
+        }\
+        /* Mobile UA fix: hide sidebar on phone UAs only */\
+        html.qb-phone-ua .sidebar-wrapper {\
+            display: none !important;\
+        }\
+        html.qb-phone-ua .splitter-container-left-panel {\
+            display: none !important;\
+            width: 0 !important;\
+            min-width: 0 !important;\
+            max-width: 0 !important;\
+            overflow: hidden !important;\
         }\
         \
         html.dark .chat-response-message-right,\
@@ -1686,10 +1700,7 @@
         '.response-message-content', '.container-response-message-content',
         '.auth-layout', '.qwenchat-auth-pc-top',
         '.qwen-chat-thinking-and-sources-header',
-        '.qwen-chat-thinking-and-sources-content',
-        '.chat-bottom-area', '.chat-input-wrapper', '.chat-spacer',
-        '.chat-padding', '.chat-footer-area', '.chat-bottom-wrapper',
-        '.chat-input-area', '.chat-input-container', '.chat-action-bar'
+        '.qwen-chat-thinking-and-sources-content'
     ];
 
     var ACRYLIC_SELECTORS = [
@@ -1734,6 +1745,31 @@
         });
         _styleLock = false;
         document.documentElement.style.setProperty('background-color', 'transparent', 'important');
+    }
+
+    /* Auto-detect and fix white/light background elements that block acrylic effect */
+    function fixWhiteBackgrounds() {
+        if (!document.body) return;
+        var allEls = document.querySelectorAll('div, section, main, aside, header, footer, nav, article');
+        for (var i = 0; i < allEls.length; i++) {
+            var el = allEls[i];
+            if (isAcrylicElement(el)) continue;
+            if (el.closest('#qwen-beautify-panel')) continue;
+            if (el.closest('.sidebar-wrapper')) continue;
+            if (el.id === 'qwen-custom-bg-layer' || el.id === 'qwen-bg-opacity-overlay') continue;
+            var cs = window.getComputedStyle(el);
+            var bg = cs.backgroundColor;
+            if (!bg || bg === 'transparent' || bg === 'rgba(0, 0, 0, 0)') continue;
+            /* Parse rgb/rgba values */
+            var m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+            if (!m) continue;
+            var r = parseInt(m[1]), g = parseInt(m[2]), b = parseInt(m[3]);
+            /* If background is white or near-white (light gray), make transparent */
+            if (r >= 240 && g >= 240 && b >= 240) {
+                el.style.setProperty('background-color', 'transparent', 'important');
+                el.style.setProperty('background', 'transparent', 'important');
+            }
+        }
     }
 
     /* Force-clear inline background styles inside code blocks (Monaco sets them dynamically) */
@@ -1803,6 +1839,7 @@
         var themeColor = getStoredThemeColor();
         if (themeColor) applyThemeColor(themeColor);
         enforceTransparentBg();
+        fixWhiteBackgrounds();
         forceShowPanel();
     }
 
@@ -1829,6 +1866,7 @@
         observerTimer = setTimeout(function () {
             observerTimer = null;
             enforceTransparentBg();
+            fixWhiteBackgrounds();
             enforceAcrylicOff();
             enforceCodeBlockTransparency();
             enforceBackground();
