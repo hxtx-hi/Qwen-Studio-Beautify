@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="build-version" content="2026-08-15 09:20">
 <title>查看脚本原文 — Qwen Studio Beautify</title>
 <link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg" type="image/svg+xml">
 <style>
@@ -2355,7 +2359,7 @@ footer .links{margin-bottom:8px}
     <a href="https://gitee.com/hxtx-hi/Qwen-Studio-Beautify" target="_blank">Gitee</a>·
     <a href="https://github.com/hxtx-hi/Qwen-Studio-Beautify/releases" target="_blank">Releases</a>
   </div>
-  <p>Qwen Studio Beautify · MIT License · 硬编码备份 · 请以 GitHub 为准</p>
+  <p>Qwen Studio Beautify · MIT License · 硬编码备份 · 最后更新 2026-08-15 09:20 · 请以 GitHub 为准</p>
 </footer>
 
 </div>
@@ -2365,109 +2369,6 @@ footer .links{margin-bottom:8px}
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
   <span id="toastText">已复制到剪贴板</span>
 </div>
-
-<script>
-var scriptContent=document.getElementById('rawScriptData').value;
-
-/* Theme toggle (same as index.html) */
-function toggleTheme(){
-  var sunSVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
-  var moonSVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
-  var html=document.documentElement;
-  var next=html.getAttribute('data-theme')==='light'?'dark':'light';
-  html.setAttribute('data-theme',next);
-  document.getElementById('themeKnob').innerHTML=next==='light'?sunSVG:moonSVG;
-  localStorage.setItem('qsb-theme',next);
-}
-(function(){
-  var sunSVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
-  var moonSVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
-  var saved=localStorage.getItem('qsb-theme');
-  if(saved){
-    document.documentElement.setAttribute('data-theme',saved);
-    document.getElementById('themeKnob').innerHTML=saved==='light'?sunSVG:moonSVG;
-  }
-})();
-
-/* Toast */
-function showToast(msg){
-  var toast=document.getElementById('toast');
-  document.getElementById('toastText').textContent=msg;
-  toast.classList.add('show');
-  clearTimeout(showToast._t);
-  showToast._t=setTimeout(function(){toast.classList.remove('show');},2200);
-}
-
-/* Escape HTML */
-function escapeHtml(s){
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-/* Copy all */
-function copyAll(){
-  if(!scriptContent){
-    showToast('脚本尚未加载完成');
-    return;
-  }
-  function fallback(text){
-    var ta=document.createElement('textarea');
-    ta.value=text;
-    ta.style.position='fixed';
-    ta.style.top='-9999px';
-    ta.style.left='-9999px';
-    document.body.appendChild(ta);
-    ta.focus();ta.select();
-    try{document.execCommand('copy');showToast('已复制全部脚本到剪贴板');}
-    catch(e){showToast('复制失败，请手动选择文本');}
-    document.body.removeChild(ta);
-  }
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(scriptContent).then(function(){
-      showToast('已复制全部脚本到剪贴板');
-      markCopied();
-    }).catch(function(){
-      fallback(scriptContent);markCopied();
-    });
-  }else{
-    fallback(scriptContent);markCopied();
-  }
-}
-function markCopied(){
-  var inlineBtn=document.getElementById('copyInlineBtn');
-  var inlineText=document.getElementById('copyInlineText');
-  inlineBtn.classList.add('copied');
-  inlineText.textContent='已复制';
-  setTimeout(function(){
-    inlineBtn.classList.remove('copied');
-    inlineText.textContent='复制';
-  },2000);
-}
-
-/* Render code with line numbers */
-function renderCode(code){
-  var lines=code.split('\n');
-  var html='';
-  // Cap line numbers to avoid performance issues on extremely large files
-  var maxLines=lines.length;
-  for(var i=0;i<maxLines;i++){
-    var numStr=String(i+1);
-    html+='<span class="code-line"><span class="lineno">'+numStr+'</span><span class="code-content">'+escapeHtml(lines[i])+'</span></span>';
-    if(i<maxLines-1){html+='\n';}
-  }
-  var codeTable=document.getElementById('codeTable');
-  codeTable.innerHTML=html;
-  codeTable.style.display='block';
-
-  // Stats
-  var bytes=new Blob([code]).size;
-  var kb=(bytes/1024).toFixed(1);
-  var stats=document.getElementById('codeStats');
-  stats.textContent=maxLines+' 行 · '+kb+' KB';
-}
-
-/* Stats (pre-rendered) */
-document.getElementById('codeStats').textContent='1944 行 · 86.4 KB';
-</script>
 
 <textarea id="rawScriptData" style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0" readonly>// ==UserScript==
 // @name         Qwen Studio Beautify
@@ -4413,5 +4314,118 @@ document.getElementById('codeStats').textContent='1944 行 · 86.4 KB';
     }
 })();
 </textarea>
+
+<script>
+var scriptContent='';
+function getScriptContent(){
+  if(!scriptContent){
+    var ta=document.getElementById('rawScriptData');
+    if(ta) scriptContent=ta.value;
+  }
+  return scriptContent;
+}
+
+/* Theme toggle (same as index.html) */
+function toggleTheme(){
+  var sunSVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+  var moonSVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  var html=document.documentElement;
+  var next=html.getAttribute('data-theme')==='light'?'dark':'light';
+  html.setAttribute('data-theme',next);
+  document.getElementById('themeKnob').innerHTML=next==='light'?sunSVG:moonSVG;
+  localStorage.setItem('qsb-theme',next);
+}
+(function(){
+  var sunSVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+  var moonSVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  var saved=localStorage.getItem('qsb-theme');
+  if(saved){
+    document.documentElement.setAttribute('data-theme',saved);
+    document.getElementById('themeKnob').innerHTML=saved==='light'?sunSVG:moonSVG;
+  }
+})();
+
+/* Toast */
+function showToast(msg){
+  var toast=document.getElementById('toast');
+  document.getElementById('toastText').textContent=msg;
+  toast.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t=setTimeout(function(){toast.classList.remove('show');},2200);
+}
+
+/* Escape HTML */
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* Copy all */
+function copyAll(){
+  var sc=getScriptContent();
+  if(!sc){
+    showToast('脚本尚未加载完成');
+    return;
+  }
+  function fallback(text){
+    var ta=document.createElement('textarea');
+    ta.value=text;
+    ta.style.position='fixed';
+    ta.style.top='-9999px';
+    ta.style.left='-9999px';
+    document.body.appendChild(ta);
+    ta.focus();ta.select();
+    try{document.execCommand('copy');showToast('已复制全部脚本到剪贴板');}
+    catch(e){showToast('复制失败，请手动选择文本');}
+    document.body.removeChild(ta);
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(sc).then(function(){
+      showToast('已复制全部脚本到剪贴板');
+      markCopied();
+    }).catch(function(){
+      fallback(sc);markCopied();
+    });
+  }else{
+    fallback(sc);markCopied();
+  }
+}
+function markCopied(){
+  var inlineBtn=document.getElementById('copyInlineBtn');
+  var inlineText=document.getElementById('copyInlineText');
+  inlineBtn.classList.add('copied');
+  inlineText.textContent='已复制';
+  setTimeout(function(){
+    inlineBtn.classList.remove('copied');
+    inlineText.textContent='复制';
+  },2000);
+}
+
+/* Render code with line numbers */
+function renderCode(code){
+  var lines=code.split('\n');
+  var html='';
+  // Cap line numbers to avoid performance issues on extremely large files
+  var maxLines=lines.length;
+  for(var i=0;i<maxLines;i++){
+    var numStr=String(i+1);
+    html+='<span class="code-line"><span class="lineno">'+numStr+'</span><span class="code-content">'+escapeHtml(lines[i])+'</span></span>';
+    if(i<maxLines-1){html+='\n';}
+  }
+  var codeTable=document.getElementById('codeTable');
+  codeTable.innerHTML=html;
+  codeTable.style.display='block';
+
+  // Stats
+  var bytes=new Blob([code]).size;
+  var kb=(bytes/1024).toFixed(1);
+  var stats=document.getElementById('codeStats');
+  stats.textContent=maxLines+' 行 · '+kb+' KB';
+}
+
+/* Stats (pre-rendered) */
+document.getElementById('codeStats').textContent='1944 行 · 86.4 KB';
+</script>
+
+
 </body>
 </html>
