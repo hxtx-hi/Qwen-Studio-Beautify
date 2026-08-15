@@ -259,6 +259,13 @@
         style.id = STYLE_ID;
         style.textContent = '\
         .chat-footer, .chat-container-statement { display: none !important; }\
+        /* Fix: make right panel containers transparent to expose acrylic */\
+        .splitter-container-right-panel > div:not(.chat-response-message-right):not(.chat-response-message-right-touch):not(.chat-user-message):not(.message-input-container) {\
+            background-color: transparent !important;\
+        }\\
+        .chat-content::after, .chat-container::after { display: none !important; }\
+        .chat-messages-container > div:last-child { margin-bottom: 0 !important; padding-bottom: 0 !important; }\
+        .chat-content, .chat-container, .chat-messages-container { overflow: hidden !important; }\\
         \
         .chat-response-message-right,\
         .chat-response-message-right-touch {\
@@ -1682,7 +1689,10 @@
         '.response-message-content', '.container-response-message-content',
         '.auth-layout', '.qwenchat-auth-pc-top',
         '.qwen-chat-thinking-and-sources-header',
-        '.qwen-chat-thinking-and-sources-content'
+        '.qwen-chat-thinking-and-sources-content',
+        '.chat-bottom-area', '.chat-input-wrapper', '.chat-spacer',
+        '.chat-padding', '.chat-footer-area', '.chat-bottom-wrapper',
+        '.chat-input-area', '.chat-input-container', '.chat-action-bar'
     ];
 
     var ACRYLIC_SELECTORS = [
