@@ -259,10 +259,7 @@
         style.id = STYLE_ID;
         style.textContent = '\
         .chat-footer, .chat-container-statement { display: none !important; }\
-        /* Fix: make right panel containers transparent to expose acrylic */\
-        .splitter-container-right-panel > div:not(.chat-response-message-right):not(.chat-response-message-right-touch):not(.chat-user-message):not(.message-input-container) {\
-            background-color: transparent !important;\
-        }\\
+        .splitter-container-right-panel > div:not([class*="message"]):not([class*="input"]) { background-color: transparent !important; }\\
         .chat-content::after, .chat-container::after { display: none !important; }\
         .chat-messages-container > div:last-child { margin-bottom: 0 !important; padding-bottom: 0 !important; }\
         .chat-content, .chat-container, .chat-messages-container { overflow: hidden !important; }\\
