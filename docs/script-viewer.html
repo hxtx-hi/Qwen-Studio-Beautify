@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>查看脚本原文 — Qwen Studio Beautify</title>
+<link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg" type="image/svg+xml">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --accent:#10b981;--accent2:#059669;--accent3:#34d399;
+  --cyan:#06b6d4;--glow:rgba(16,185,129,.12);
+  --radius:16px;
+}
+
+[data-theme="light"]{
+  --bg:#f0fdf4;--bg2:#ecfdf5;
+  --surface:rgba(255,255,255,.75);--surface-solid:#ffffff;
+  --border:#d1fae5;--border2:#a7f3d0;
+  --text:#064e3b;--text2:#4b5563;--text3:#9ca3af;
+  --shadow:0 1px 3px rgba(0,0,0,.06);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.07);
+  --toggle-bg:#e2e8f0;--toggle-icon:#f59e0b;
+  --glass-border:rgba(16,185,129,.18);
+  --glass-bg:rgba(255,255,255,.65);
+  --hero-grad:linear-gradient(135deg,#10b981,#06b6d4,#059669);
+  --tag-bg:rgba(16,185,129,.1);--tag-color:#059669;
+  --warn-bg:rgba(245,158,11,.08);--warn-border:#f59e0b;--warn-text:#92400e;
+  --warn-text2:#78350f;
+  --footer-color:#9ca3af;
+  --step-bg:rgba(16,185,129,.06);
+  --step-border:rgba(16,185,129,.2);
+  --code-bg:rgba(16,185,129,.08);--code-color:#059669;
+  --codeblock-bg:rgba(248,250,249,.7);
+  --codeblock-border:#d1fae5;
+  --lineno-color:#9ca3af;
+  --lineno-bg:rgba(16,185,129,.05);
+}
+
+[data-theme="dark"]{
+  --bg:#0a0f0d;--bg2:#0d1412;
+  --surface:rgba(19,31,26,.7);--surface-solid:#131f1a;
+  --border:#1e3a2f;--border2:#2d5a47;
+  --text:#d1fae5;--text2:#88a89a;--text3:#5a7a6c;
+  --shadow:0 1px 3px rgba(0,0,0,.3);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.4);
+  --toggle-bg:#1e3a2f;--toggle-icon:#818cf8;
+  --glass-border:rgba(16,185,129,.15);
+  --glass-bg:rgba(16,185,129,.06);
+  --hero-grad:linear-gradient(135deg,#34d399,#06b6d4,#10b981);
+  --tag-bg:rgba(16,185,129,.12);--tag-color:#34d399;
+  --warn-bg:rgba(245,158,11,.08);--warn-border:#b45309;--warn-text:#fbbf24;
+  --warn-text2:#fcd34d;
+  --footer-color:#3f4f46;
+  --step-bg:rgba(16,185,129,.04);
+  --step-border:rgba(16,185,129,.15);
+  --code-bg:rgba(16,185,129,.1);--code-color:#34d399;
+  --codeblock-bg:rgba(10,15,13,.55);
+  --codeblock-border:#1e3a2f;
+  --lineno-color:#5a7a6c;
+  --lineno-bg:rgba(16,185,129,.04);
+}
+
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--text);overflow-x:hidden;
+  transition:background .35s,color .35s;
+}
+
+/* BG */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 700px 500px at 15% 10%,rgba(16,185,129,.08),transparent),
+    radial-gradient(ellipse 500px 500px at 85% 80%,rgba(6,182,212,.06),transparent);
+  animation:drift 25s ease-in-out infinite alternate;
+}
+[data-theme="dark"] .bg{
+  background:
+    radial-gradient(ellipse 700px 500px at 15% 10%,rgba(16,185,129,.05),transparent),
+    radial-gradient(ellipse 500px 500px at 85% 80%,rgba(6,182,212,.03),transparent);
+}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-20px,15px) scale(1.04)}}
+
+/* Glass */
+.glass{
+  background:var(--glass-bg);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  transition:background .35s,border-color .35s,box-shadow .35s,transform .25s;
+}
+.glass:hover{
+  box-shadow:var(--shadow-lg);
+}
+
+/* Theme Toggle */
+.theme-toggle{
+  position:fixed;top:20px;right:24px;z-index:100;
+  width:52px;height:28px;border-radius:14px;
+  background:var(--toggle-bg);border:1px solid var(--border);
+  cursor:pointer;transition:all .3s;
+  display:flex;align-items:center;padding:0 4px;
+}
+.theme-toggle:hover{border-color:var(--accent)}
+.theme-toggle .knob{
+  width:20px;height:20px;border-radius:50%;
+  background:var(--toggle-icon);
+  transition:transform .3s,background .3s;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;line-height:1;
+  box-shadow:0 1px 4px rgba(0,0,0,.15);
+}
+[data-theme="dark"] .theme-toggle .knob{transform:translateX(24px)}
+
+/* Container */
+.container{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:24px 20px}
+
+/* Header */
+.viewer-header{text-align:center;padding:56px 0 32px}
+.viewer-header h1{
+  font-size:clamp(1.8rem,5vw,2.6rem);font-weight:800;
+  background:var(--hero-grad);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;line-height:1.3;
+  letter-spacing:-.02em;
+}
+.viewer-header .subtitle{
+  margin-top:16px;font-size:1.05rem;color:var(--text2);
+  max-width:560px;margin-left:auto;margin-right:auto;line-height:1.7;
+}
+.viewer-header .meta-badge{
+  display:inline-block;margin-top:14px;
+  padding:4px 16px;font-size:.8rem;font-weight:600;
+  border-radius:20px;
+  background:var(--tag-bg);color:var(--tag-color);
+  border:1px solid var(--step-border);
+}
+
+/* Action Bar */
+.action-bar{
+  display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+  margin:0 0 24px;
+}
+.action-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  height:44px;padding:0 22px;border-radius:12px;
+  font-size:.92rem;font-weight:600;text-decoration:none;
+  cursor:pointer;transition:all .25s;
+  border:1px solid transparent;
+  font-family:inherit;
+}
+.action-btn svg{flex-shrink:0}
+.action-btn-primary{
+  color:#fff;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));
+  box-shadow:0 4px 20px rgba(16,185,129,.3);
+}
+.action-btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(16,185,129,.45)}
+.action-btn-ghost{
+  color:var(--text);background:var(--glass-bg);
+  border-color:var(--glass-border);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.action-btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:rgba(16,185,129,.06);transform:translateY(-2px)}
+
+/* Code Card */
+.code-card{
+  padding:0;overflow:hidden;margin-bottom:24px;
+}
+.code-card-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding:14px 18px;
+  border-bottom:1px solid var(--border);
+  background:var(--step-bg);
+  flex-wrap:wrap;
+}
+.code-card-head .file-info{
+  display:flex;align-items:center;gap:10px;
+  font-size:.85rem;font-weight:600;color:var(--text);
+  font-family:"SF Mono","Fira Code",Consolas,monospace;
+  word-break:break-all;
+}
+.code-card-head .file-info svg{flex-shrink:0;color:var(--accent)}
+.code-card-head .stats{
+  font-size:.78rem;color:var(--text3);
+  font-family:"SF Mono","Fira Code",Consolas,monospace;
+  white-space:nowrap;
+}
+.code-card-head .copy-inline{
+  display:inline-flex;align-items:center;gap:6px;
+  height:32px;padding:0 14px;border-radius:8px;
+  font-size:.8rem;font-weight:600;
+  color:var(--accent);background:var(--tag-bg);
+  border:1px solid var(--step-border);
+  cursor:pointer;transition:all .2s;
+  font-family:inherit;
+}
+.code-card-head .copy-inline:hover{background:rgba(16,185,129,.18);border-color:var(--accent)}
+.code-card-head .copy-inline.copied{color:var(--accent2);background:rgba(16,185,129,.15)}
+
+/* Code body */
+.code-body{
+  position:relative;
+  max-height:75vh;overflow:auto;
+  background:var(--codeblock-bg);
+}
+.code-body::-webkit-scrollbar{width:10px;height:10px}
+.code-body::-webkit-scrollbar-track{background:transparent}
+.code-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:6px}
+.code-body::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+
+.code-table{
+  display:block;width:100%;
+  font-family:"SF Mono","Fira Code","JetBrains Mono",Consolas,Monaco,monospace;
+  font-size:.82rem;line-height:1.65;
+  white-space:pre;
+  user-select:text;
+  -webkit-user-select:text;
+  -moz-user-select:text;
+  -ms-user-select:text;
+}
+.code-line{
+  display:flex;min-width:max-content;
+}
+.code-line:hover{background:rgba(16,185,129,.05)}
+.lineno{
+  flex-shrink:0;
+  text-align:right;
+  padding:0 14px 0 18px;
+  color:var(--lineno-color);
+  background:var(--lineno-bg);
+  user-select:none;
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  border-right:1px solid var(--border);
+  position:sticky;left:0;z-index:1;
+}
+.code-content{
+  display:block;
+  padding:0 18px;
+  white-space:pre;
+  user-select:text;
+  -webkit-user-select:text;
+  -moz-user-select:text;
+  -ms-user-select:text;
+  color:var(--text);
+}
+
+/* Loading */
+.loading-box{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;padding:80px 24px;text-align:center;
+}
+.spinner{
+  width:42px;height:42px;border-radius:50%;
+  border:3px solid var(--step-border);
+  border-top-color:var(--accent);
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-box .loading-text{
+  font-size:.95rem;color:var(--text2);
+}
+.loading-box .loading-sub{
+  font-size:.8rem;color:var(--text3);font-family:"SF Mono","Fira Code",Consolas,monospace;
+}
+
+/* Error */
+.error-box{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;padding:64px 24px;text-align:center;
+}
+.error-box .error-icon{
+  width:56px;height:56px;border-radius:50%;
+  background:var(--warn-bg);border:1px solid var(--warn-border);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--warn-border);
+}
+.error-box .error-title{
+  font-size:1.1rem;font-weight:700;color:var(--warn-text);
+}
+.error-box .error-desc{
+  font-size:.88rem;color:var(--warn-text2);max-width:480px;line-height:1.7;
+}
+.error-box .error-link{
+  display:inline-flex;align-items:center;gap:8px;
+  height:42px;padding:0 20px;border-radius:10px;
+  font-size:.9rem;font-weight:600;text-decoration:none;
+  color:#fff;background:linear-gradient(135deg,var(--accent),var(--cyan));
+  box-shadow:0 4px 20px rgba(16,185,129,.3);
+  transition:all .25s;
+}
+.error-box .error-link:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(16,185,129,.45)}
+
+/* Notice bar */
+.notice-bar{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:12px 16px;border-radius:10px;
+  background:var(--step-bg);border:1px solid var(--step-border);
+  color:var(--text2);font-size:.83rem;line-height:1.65;
+  margin-bottom:24px;
+}
+.notice-bar svg{flex-shrink:0;margin-top:2px;color:var(--accent)}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);
+  display:flex;align-items:center;gap:8px;
+  padding:12px 22px;border-radius:12px;
+  background:var(--surface-solid);color:var(--text);
+  font-size:.88rem;font-weight:600;
+  box-shadow:var(--shadow-lg);
+  border:1px solid var(--border);
+  opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;
+  z-index:200;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast svg{color:var(--accent)}
+
+/* Footer */
+footer{text-align:center;padding:40px 0 32px;color:var(--footer-color);font-size:.8rem;transition:color .3s}
+footer a{color:var(--text3);text-decoration:none;margin:0 6px}
+footer a:hover{color:var(--text2)}
+footer .links{margin-bottom:8px}
+
+@media(max-width:640px){
+  .viewer-header{padding:40px 0 24px}
+  .theme-toggle{top:12px;right:16px}
+  .action-bar{flex-direction:column;align-items:stretch}
+  .action-btn{width:100%;max-width:none}
+  .code-card-head{flex-direction:column;align-items:flex-start;gap:8px}
+  .code-card-head .stats{display:none}
+  .code-table{font-size:.75rem}
+  .lineno{padding:0 10px 0 12px}
+  .code-content{padding:0 12px}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<!-- Theme Toggle -->
+<div class="theme-toggle" onclick="toggleTheme()" title="切换亮暗模式">
+  <div class="knob" id="themeKnob" style="color:#fff"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></div>
+</div>
+
+<div class="container">
+
+<!-- Header -->
+<div class="viewer-header">
+  <h1>查看脚本原文</h1>
+  <p class="subtitle">以下是 Qwen Studio Beautify 用户脚本的完整源代码，可直接复制或下载安装。</p>
+  <div class="meta-badge">qwen-studio-beautify.user.js</div>
+</div>
+
+<!-- Action Bar -->
+<div class="action-bar">
+  <button class="action-btn action-btn-primary" onclick="copyAll()" id="copyAllBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+    复制全部
+  </button>
+  <a class="action-btn action-btn-ghost" href="index.html" title="返回官网首页">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    返回官网
+  </a>
+</div>
+
+<!-- Notice -->
+<div class="notice-bar">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+  <span>脚本内容较长，可在代码区域内长按选择文本进行复制（移动端），或使用鼠标拖选（桌面端）。长行可水平滚动查看完整内容。</span>
+</div>
+
+<!-- Code Card -->
+<div class="glass code-card">
+  <div class="code-card-head">
+    <div class="file-info">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span id="fileName">qwen-studio-beautify.user.js</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span class="stats" id="codeStats"></span>
+      <button class="copy-inline" onclick="copyAll()" id="copyInlineBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span id="copyInlineText">复制</span>
+      </button>
+    </div>
+  </div>
+  <div class="code-body" id="codeBody">
+    <!-- Loading -->
+    <div class="loading-box" id="loadingBox">
+      <div class="spinner"></div>
+      <div class="loading-text">正在加载脚本源代码...</div>
+      <div class="loading-sub" id="loadingUrl">raw.githubusercontent.com</div>
+    </div>
+    <!-- Error (hidden by default) -->
+    <div class="error-box" id="errorBox" style="display:none">
+      <div class="error-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <div class="error-title">无法加载脚本内容</div>
+      <div class="error-desc" id="errorDesc">加载脚本源代码失败，可能是网络问题或跨域限制。你可以通过下方链接直接下载脚本文件。</div>
+      <a class="error-link" id="errorLink" href="https://raw.githubusercontent.com/hxtx-hi/Qwen-Studio-Beautify/main/qwen-studio-beautify.user.js" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        直接下载脚本
+      </a>
+    </div>
+    <!-- Code (rendered by JS) -->
+    <code class="code-table" id="codeTable" style="display:none"></code>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="links">
+    <a href="index.html">官网首页</a>·
+    <a href="https://github.com/hxtx-hi/Qwen-Studio-Beautify" target="_blank">GitHub</a>·
+    <a href="https://gitee.com/hxtx-hi/Qwen-Studio-Beautify" target="_blank">Gitee</a>·
+    <a href="https://github.com/hxtx-hi/Qwen-Studio-Beautify/releases" target="_blank">Releases</a>
+  </div>
+  <p>Qwen Studio Beautify · MIT License · 源代码来自 GitHub Raw</p>
+</footer>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastText">已复制到剪贴板</span>
+</div>
+
+<script>
+var SCRIPT_URL='https://raw.githubusercontent.com/hxtx-hi/Qwen-Studio-Beautify/main/qwen-studio-beautify.user.js';
+var scriptContent='';
+
+/* Theme toggle (same as index.html) */
+function toggleTheme(){
+  var sunSVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+  var moonSVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  var html=document.documentElement;
+  var next=html.getAttribute('data-theme')==='light'?'dark':'light';
+  html.setAttribute('data-theme',next);
+  document.getElementById('themeKnob').innerHTML=next==='light'?sunSVG:moonSVG;
+  localStorage.setItem('qsb-theme',next);
+}
+(function(){
+  var sunSVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+  var moonSVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  var saved=localStorage.getItem('qsb-theme');
+  if(saved){
+    document.documentElement.setAttribute('data-theme',saved);
+    document.getElementById('themeKnob').innerHTML=saved==='light'?sunSVG:moonSVG;
+  }
+})();
+
+/* Toast */
+function showToast(msg){
+  var toast=document.getElementById('toast');
+  document.getElementById('toastText').textContent=msg;
+  toast.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t=setTimeout(function(){toast.classList.remove('show');},2200);
+}
+
+/* Escape HTML */
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* Copy all */
+function copyAll(){
+  if(!scriptContent){
+    showToast('脚本尚未加载完成');
+    return;
+  }
+  function fallback(text){
+    var ta=document.createElement('textarea');
+    ta.value=text;
+    ta.style.position='fixed';
+    ta.style.top='-9999px';
+    ta.style.left='-9999px';
+    document.body.appendChild(ta);
+    ta.focus();ta.select();
+    try{document.execCommand('copy');showToast('已复制全部脚本到剪贴板');}
+    catch(e){showToast('复制失败，请手动选择文本');}
+    document.body.removeChild(ta);
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(scriptContent).then(function(){
+      showToast('已复制全部脚本到剪贴板');
+      markCopied();
+    }).catch(function(){
+      fallback(scriptContent);markCopied();
+    });
+  }else{
+    fallback(scriptContent);markCopied();
+  }
+}
+function markCopied(){
+  var inlineBtn=document.getElementById('copyInlineBtn');
+  var inlineText=document.getElementById('copyInlineText');
+  inlineBtn.classList.add('copied');
+  inlineText.textContent='已复制';
+  setTimeout(function(){
+    inlineBtn.classList.remove('copied');
+    inlineText.textContent='复制';
+  },2000);
+}
+
+/* Render code with line numbers */
+function renderCode(code){
+  var lines=code.split('\n');
+  var html='';
+  // Cap line numbers to avoid performance issues on extremely large files
+  var maxLines=lines.length;
+  for(var i=0;i<maxLines;i++){
+    var numStr=String(i+1);
+    html+='<span class="code-line"><span class="lineno">'+numStr+'</span><span class="code-content">'+escapeHtml(lines[i])+'</span></span>';
+    if(i<maxLines-1){html+='\n';}
+  }
+  var codeTable=document.getElementById('codeTable');
+  codeTable.innerHTML=html;
+  codeTable.style.display='block';
+
+  // Stats
+  var bytes=new Blob([code]).size;
+  var kb=(bytes/1024).toFixed(1);
+  var stats=document.getElementById('codeStats');
+  stats.textContent=maxLines+' 行 · '+kb+' KB';
+}
+
+/* Fetch script */
+function loadScript(){
+  document.getElementById('loadingUrl').textContent='正在连接 '+SCRIPT_URL.replace('https://','').split('/')[0];
+  fetch(SCRIPT_URL,{cache:'no-store'})
+    .then(function(resp){
+      if(!resp.ok){throw new Error('HTTP '+resp.status+' '+resp.statusText);}
+      return resp.text();
+    })
+    .then(function(text){
+      scriptContent=text;
+      document.getElementById('loadingBox').style.display='none';
+      renderCode(text);
+    })
+    .catch(function(err){
+      document.getElementById('loadingBox').style.display='none';
+      var desc=document.getElementById('errorDesc');
+      desc.textContent='加载脚本源代码失败（'+(err&&err.message?err.message:'未知错误')+'）。可能是网络问题或浏览器跨域限制，你可以通过下方链接直接下载脚本文件。';
+      document.getElementById('errorBox').style.display='flex';
+    });
+}
+
+loadScript();
+</script>
+
+</body>
+</html>
