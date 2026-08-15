@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Qwen Studio Beautify
 // @namespace    https://chat.qwen.ai/
-// @version      6.9.3
+// @version      6.9.5
 // @description  Acrylic effect, custom background (image/video), HSV theme color, custom font, hide footer
 // @author       You
 // @match        https://chat.qwen.ai/*
@@ -14,13 +14,6 @@
 
 (function () {
     'use strict';
-
-    /* Detect phone UA — hide sidebar on phones only; tablets/desktops/ChromeOS keep acrylic */
-    (function () {
-        var ua = navigator.userAgent || '';
-        var isPhone = /Android.*Mobile|iPhone|iPod|Windows Phone|BlackBerry|Opera Mini|IEMobile/i.test(ua);
-        if (isPhone) document.documentElement.classList.add('qb-phone-ua');
-    })();
 
     var STYLE_ID = 'qwen-beautify-style';
     var THEME_STYLE_ID = 'qwen-beautify-theme';
@@ -105,6 +98,11 @@
         'html .message-input-container',
         'html .sidebar-wrapper',
         'html .sidebar-wrapper .sidebar',
+        'html .sidebar-wrapper .sidebar-side',
+        'html .sidebar-wrapper .sidebar-floating',
+        'html .sidebar-wrapper .sidebar-floating-collapse',
+        'html .sidebar-wrapper .sidebar-collapse',
+        'html .sidebar-wrapper .sidebar-temporary',
         'html .sidebar-hide-side',
         'html .sidebar-workspace .workspace-link',
         'html .session-list-wrapper',
@@ -115,6 +113,9 @@
         'html .header-desktop',
         'html .ant-dropdown-menu',
         'html [class*="model-selector-popup"]',
+        'html .wms-popup',
+        'html .wms-popup__auth',
+        'html .wms-popup__inner',
         'html .ant-select-dropdown',
         'html .mode-select-dropdown',
         'html .qwen-dropdown-menu',
@@ -136,10 +137,16 @@
         '.chat-response-message-right', '.chat-response-message-right-touch',
         '.chat-user-message', '.message-input-container',
         '.sidebar-wrapper', '.sidebar-wrapper .sidebar',
+        '.sidebar-wrapper .sidebar-side',
+        '.sidebar-wrapper .sidebar-floating',
+        '.sidebar-wrapper .sidebar-floating-collapse',
+        '.sidebar-wrapper .sidebar-collapse',
+        '.sidebar-wrapper .sidebar-temporary',
         '.sidebar-hide-side', '.sidebar-workspace .workspace-link',
         '.session-list-wrapper', '.session-list-wrapper-small',
         '.header-mobile', '.header-desktop',
         '.ant-dropdown-menu', '[class*="model-selector-popup"]',
+        '.wms-popup', '.wms-popup__auth', '.wms-popup__inner',
         '.ant-select-dropdown', '.mode-select-dropdown',
         '.qwen-dropdown-menu', '.qwen-chat-thinking-and-sources',
         '.splitter-container-right-panel',
@@ -443,6 +450,11 @@
         \
         .sidebar-wrapper,\
         .sidebar-wrapper .sidebar,\
+        .sidebar-wrapper .sidebar-side,\
+        .sidebar-wrapper .sidebar-floating,\
+        .sidebar-wrapper .sidebar-floating-collapse,\
+        .sidebar-wrapper .sidebar-collapse,\
+        .sidebar-wrapper .sidebar-temporary,\
         .sidebar-hide-side,\
         .sidebar-workspace .workspace-link,\
         .session-list-wrapper,\
@@ -463,17 +475,6 @@
             backdrop-filter: blur(4px) !important;\
             -webkit-backdrop-filter: blur(4px) !important;\
         }\
-        /* Mobile UA fix: hide sidebar on phone UAs only */\
-        html.qb-phone-ua .sidebar-wrapper {\
-            display: none !important;\
-        }\
-        html.qb-phone-ua .splitter-container-left-panel {\
-            display: none !important;\
-            width: 0 !important;\
-            min-width: 0 !important;\
-            max-width: 0 !important;\
-            overflow: hidden !important;\
-        }\
         \
         html.dark .chat-response-message-right,\
         html.dark .chat-response-message-right-touch {\
@@ -490,6 +491,11 @@
         }\
         html.dark .sidebar-wrapper,\
         html.dark .sidebar-wrapper .sidebar,\
+        html.dark .sidebar-wrapper .sidebar-side,\
+        html.dark .sidebar-wrapper .sidebar-floating,\
+        html.dark .sidebar-wrapper .sidebar-floating-collapse,\
+        html.dark .sidebar-wrapper .sidebar-collapse,\
+        html.dark .sidebar-wrapper .sidebar-temporary,\
         html.dark .sidebar-hide-side,\
         html.dark .session-list-wrapper,\
         html.dark .session-list-wrapper-small {\
@@ -507,6 +513,9 @@
         \
         .ant-dropdown-menu,\
         [class*="model-selector-popup"],\
+        .wms-popup,\
+        .wms-popup__auth,\
+        .wms-popup__inner,\
         .ant-select-dropdown,\
         .mode-select-dropdown,\
         .qwen-dropdown-menu,\
@@ -518,6 +527,9 @@
         }\
         html.dark .ant-dropdown-menu,\
         html.dark [class*="model-selector-popup"],\
+        html.dark .wms-popup,\
+        html.dark .wms-popup__auth,\
+        html.dark .wms-popup__inner,\
         html.dark .ant-select-dropdown,\
         html.dark .mode-select-dropdown,\
         html.dark .qwen-dropdown-menu {\
@@ -1685,6 +1697,7 @@
 
     var TRANSPARENT_SELECTORS = [
         '.desktop-layout', '.desktop-layout-content', '.desktop-layout-content-temporary',
+        '.desktop-layout-content-inner', '.desktop-layout-content-inner-temporary',
         '.chat-page-container',
         '.layout-main', '.layout-main-none-width',
         '.home-page-layout-main', '.home-page-layout-main-temporary',
@@ -1707,12 +1720,18 @@
         '.chat-response-message-right', '.chat-response-message-right-touch',
         '.chat-user-message', '.message-input-container',
         '.sidebar-wrapper', '.sidebar-wrapper .sidebar',
+        '.sidebar-wrapper .sidebar-side',
+        '.sidebar-wrapper .sidebar-floating',
+        '.sidebar-wrapper .sidebar-floating-collapse',
+        '.sidebar-wrapper .sidebar-collapse',
+        '.sidebar-wrapper .sidebar-temporary',
         '.sidebar-hide-side', '.session-list-wrapper', '.session-list-wrapper-small',
         '.header-mobile', '.header-desktop',
         '#qwen-beautify-panel', '#qwen-beautify-toggle', '#qwen-beautify-menu',
         '#qwen-custom-bg-layer', '#qwen-bg-opacity-overlay', '#qwen-custom-bg-video',
         '.ant-dropdown-menu',
         '[class*="model-selector-popup"]',
+        '.wms-popup', '.wms-popup__auth', '.wms-popup__inner',
         '.ant-select-dropdown',
         '.mode-select-dropdown',
         '.qwen-dropdown-menu',
@@ -1745,31 +1764,6 @@
         });
         _styleLock = false;
         document.documentElement.style.setProperty('background-color', 'transparent', 'important');
-    }
-
-    /* Auto-detect and fix white/light background elements that block acrylic effect */
-    function fixWhiteBackgrounds() {
-        if (!document.body) return;
-        var allEls = document.querySelectorAll('div, section, main, aside, header, footer, nav, article');
-        for (var i = 0; i < allEls.length; i++) {
-            var el = allEls[i];
-            if (isAcrylicElement(el)) continue;
-            if (el.closest('#qwen-beautify-panel')) continue;
-            if (el.closest('.sidebar-wrapper')) continue;
-            if (el.id === 'qwen-custom-bg-layer' || el.id === 'qwen-bg-opacity-overlay') continue;
-            var cs = window.getComputedStyle(el);
-            var bg = cs.backgroundColor;
-            if (!bg || bg === 'transparent' || bg === 'rgba(0, 0, 0, 0)') continue;
-            /* Parse rgb/rgba values */
-            var m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-            if (!m) continue;
-            var r = parseInt(m[1]), g = parseInt(m[2]), b = parseInt(m[3]);
-            /* If background is white or near-white (light gray), make transparent */
-            if (r >= 240 && g >= 240 && b >= 240) {
-                el.style.setProperty('background-color', 'transparent', 'important');
-                el.style.setProperty('background', 'transparent', 'important');
-            }
-        }
     }
 
     /* Force-clear inline background styles inside code blocks (Monaco sets them dynamically) */
@@ -1839,7 +1833,6 @@
         var themeColor = getStoredThemeColor();
         if (themeColor) applyThemeColor(themeColor);
         enforceTransparentBg();
-        fixWhiteBackgrounds();
         forceShowPanel();
     }
 
@@ -1866,7 +1859,6 @@
         observerTimer = setTimeout(function () {
             observerTimer = null;
             enforceTransparentBg();
-            fixWhiteBackgrounds();
             enforceAcrylicOff();
             enforceCodeBlockTransparency();
             enforceBackground();
