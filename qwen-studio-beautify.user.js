@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Qwen Studio Beautify
 // @namespace    https://chat.qwen.ai/
-// @version      6.9.10
-// @description  Acrylic effect, custom background (image/video), HSV theme color, custom font, hide footer
+// @version      6.9.11
+// @description  Acrylic effect, custom background (image/video), HSV theme color, custom font, hide footer, light/dark mode toggle
 // @author       You
 // @match        https://chat.qwen.ai/*
 // @grant        GM_addStyle
@@ -77,8 +77,8 @@
         catch (e) { try { localStorage.setItem(key, typeof val === 'string' ? val : String(val)); } catch (e2) {} }
     }
 
-    function getStoredBgType() { return gmGet('qwen_bg_type', ''); }
-    function setStoredBgType(t) { gmSet('qwen_bg_type', t); }
+    function getStoredBgType() { return gmGet(getBgTypeStorageKey(), ''); }
+    function setStoredBgType(t) { gmSet(getBgTypeStorageKey(), t); }
     function getStoredOpacity() { var v = gmGet('qwen_bg_opacity', 1); return typeof v === 'string' ? parseFloat(v || '1') : v; }
     function storeOpacity(v) { gmSet('qwen_bg_opacity', v); }
     function getStoredPos() { return gmGet('qwen_panel_pos', ''); }
@@ -89,6 +89,32 @@
     function storeFont(f) { gmSet('qwen_font', f); }
     function getStoredAcrylic() { return gmGet('qwen_acrylic', '1') === '1'; }
     function storeAcrylic(v) { gmSet('qwen_acrylic', v ? '1' : '0'); }
+
+    /* Dark mode: 'light' or 'dark' */
+    function getStoredDarkMode() { var v = gmGet('qwen_dark_mode', 'light'); return v === 'auto' ? 'light' : v; }
+    function storeDarkMode(v) { gmSet('qwen_dark_mode', v); }
+
+    /* Dual background: separate backgrounds for light/dark mode */
+    function getStoredDualBg() { return gmGet('qwen_bg_dual', '0') === '1'; }
+    function storeDualBg(v) { gmSet('qwen_bg_dual', v ? '1' : '0'); }
+
+    function isDarkModeActive() { return getStoredDarkMode() === 'dark'; }
+
+    /* Mode-aware storage key for background type */
+    function getBgTypeStorageKey() {
+        if (getStoredDualBg()) {
+            return isDarkModeActive() ? 'qwen_bg_type_dark' : 'qwen_bg_type_light';
+        }
+        return 'qwen_bg_type';
+    }
+
+    /* Mode-aware IDB key for background blobs */
+    function getBgIdbKey(baseKey) {
+        if (getStoredDualBg()) {
+            return baseKey + '_' + (isDarkModeActive() ? 'dark' : 'light');
+        }
+        return baseKey;
+    }
 
     /* Class-based selectors prefixed with html for higher specificity than Qwen's own CSS */
     var ACRYLIC_CSS_SELECTORS = [
@@ -202,6 +228,38 @@
         /* Append to end of head to ensure it comes after any dynamically injected styles */
         document.head.appendChild(existing);
         enforceAcrylicOff();
+    }
+
+    /* Apply dark mode: 'light' or 'dark' */
+    var _darkModeObserver = null;
+    function applyDarkMode(mode) {
+        var html = document.documentElement;
+        if (mode === 'light') {
+            html.classList.remove('dark');
+            html.classList.add('light');
+        } else {
+            html.classList.add('dark');
+            html.classList.remove('light');
+        }
+        /* Watch for website trying to override our forced mode */
+        if (!_darkModeObserver) {
+            _darkModeObserver = new MutationObserver(function () {
+                var currentMode = getStoredDarkMode();
+                if (currentMode === 'light' && html.classList.contains('dark')) {
+                    html.classList.remove('dark');
+                    html.classList.add('light');
+                } else if (currentMode === 'dark' && !html.classList.contains('dark')) {
+                    html.classList.add('dark');
+                    html.classList.remove('light');
+                }
+            });
+            _darkModeObserver.observe(html, { attributes: true, attributeFilter: ['class'] });
+        }
+        /* Update opacity overlay if active */
+        var opacity = getStoredOpacity();
+        if (opacity < 1) {
+            ensureOpacityOverlay(opacity);
+        }
     }
 
     function applyFont(fontFamily) {
@@ -883,7 +941,11 @@
             document.documentElement.appendChild(overlay);
         }
         var maskAlpha = 1 - opacity;
-        var isDark = document.documentElement.classList.contains('dark');
+        var forcedMode = getStoredDarkMode();
+        var isDark;
+        if (forcedMode === 'light') isDark = false;
+        else if (forcedMode === 'dark') isDark = true;
+        else isDark = document.documentElement.classList.contains('dark');
         var color = isDark ? 'rgba(20,20,25,' + maskAlpha + ')' : 'rgba(255,255,255,' + maskAlpha + ')';
         overlay.style.setProperty('background', color, 'important');
     }
@@ -891,6 +953,47 @@
     function removeOpacityOverlay() {
         var overlay = document.getElementById('qwen-bg-opacity-overlay');
         if (overlay) overlay.remove();
+    }
+
+    /* Apply pure black background (default for dark mode when dual bg is on and no bg uploaded) */
+    function applyPureBlackBackground() {
+        revokeBgUrl();
+        removeImageBackground();
+        removeVideoBackground();
+        var bgLayer = document.getElementById('qwen-custom-bg-layer');
+        if (!bgLayer) {
+            bgLayer = document.createElement('div');
+            bgLayer.id = 'qwen-custom-bg-layer';
+            bgLayer.style.cssText = 'position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;pointer-events:none!important;z-index:-2!important;';
+            document.documentElement.appendChild(bgLayer);
+        }
+        bgLayer.style.setProperty('background-image', 'none', 'important');
+        bgLayer.style.setProperty('background-color', '#000000', 'important');
+        document.documentElement.style.setProperty('background-color', '#000000', 'important');
+        removeOpacityOverlay();
+    }
+
+    /* Switch background when dark mode changes (dual bg mode) */
+    function switchBackgroundForMode() {
+        clearBackground();
+        var bgType = getStoredBgType();
+        if (bgType === 'image' || bgType === 'video') {
+            bgRestoring = true;
+            idbGet(getBgIdbKey(bgType)).then(function (blob) {
+                if (blob && !_currentBgUrl) {
+                    var url = URL.createObjectURL(blob);
+                    if (bgType === 'image') {
+                        applyImageBackground(url, getStoredOpacity());
+                    } else {
+                        applyVideoBackground(url, getStoredOpacity());
+                    }
+                }
+                bgRestoring = false;
+            }).catch(function () { bgRestoring = false; });
+        } else if (isDarkModeActive()) {
+            /* Dark mode with no bg uploaded: pure black */
+            applyPureBlackBackground();
+        }
     }
 
     function hsvToRgb(h, s, v) {
@@ -1527,12 +1630,18 @@
                     <span id="qb-opacity-val">100%</span>\
                 </div>\
                 <button class="qb-btn danger" id="qb-clear-bg">\u6e05\u9664\u80cc\u666f</button>\
+                <button class="qb-btn" id="qb-toggle-dualbg">\
+                    <span id="qb-dualbg-text">\u660e\u6697\u72ec\u7acb\u80cc\u666f: \u5173\u95ed</span>\
+                </button>\
                 <div class="qb-section-label">\u4e3b\u9898\u4e0e\u5b57\u4f53</div>\
                 <button class="qb-btn" id="qb-open-theme">\u4fee\u6539\u4e3b\u9898\u8272</button>\
                 <button class="qb-btn" id="qb-open-font">\u4fee\u6539\u5b57\u4f53</button>\
                 <div class="qb-section-label">\u5176\u4ed6</div>\
                 <button class="qb-btn" id="qb-toggle-acrylic">\
                     <span id="qb-acrylic-text">\u4e9a\u514b\u529b\u6548\u679c: \u5f00\u542f</span>\
+                </button>\
+                <button class="qb-btn" id="qb-toggle-darkmode">\
+                    <span id="qb-darkmode-text">\u660e\u6697\u6a21\u5f0f: \u6d45\u8272</span>\
                 </button>\
                 <button class="qb-btn" id="qb-toggle-disclaimer">\
                     <span id="qb-disclaimer-text">\u5e95\u90e8\u58f0\u660e\u5df2\u9690\u85cf</span>\
@@ -1549,9 +1658,14 @@
 
         function updateBgStatus() {
             var type = getStoredBgType();
-            if (type === 'image') bgStatus.textContent = '\u5f53\u524d: \u56fe\u7247\u80cc\u666f';
-            else if (type === 'video') bgStatus.textContent = '\u5f53\u524d: \u89c6\u9891\u80cc\u666f';
-            else bgStatus.textContent = '\u5f53\u524d: \u65e0\u80cc\u666f';
+            var prefix = '';
+            if (getStoredDualBg()) {
+                prefix = isDarkModeActive() ? '[\u6697\u8272] ' : '[\u4eae\u8272] ';
+            }
+            if (type === 'image') bgStatus.textContent = prefix + '\u5f53\u524d: \u56fe\u7247\u80cc\u666f';
+            else if (type === 'video') bgStatus.textContent = prefix + '\u5f53\u524d: \u89c6\u9891\u80cc\u666f';
+            else if (!type && getStoredDualBg() && isDarkModeActive()) bgStatus.textContent = prefix + '\u5f53\u524d: \u7eaf\u9ed1\u80cc\u666f';
+            else bgStatus.textContent = prefix + '\u5f53\u524d: \u65e0\u80cc\u666f';
         }
         updateBgStatus();
 
@@ -1577,8 +1691,8 @@
             var file = e.target.files[0];
             if (!file) return;
             var blob = file.slice(0, file.size, file.type);
-            idbPut('image', blob).then(function () {
-                idbDelete('video').then(function () {
+            idbPut(getBgIdbKey('image'), blob).then(function () {
+                idbDelete(getBgIdbKey('video')).then(function () {
                     setStoredBgType('image');
                     var url = URL.createObjectURL(blob);
                     applyImageBackground(url, getStoredOpacity());
@@ -1596,8 +1710,8 @@
             var file = e.target.files[0];
             if (!file) return;
             var blob = file.slice(0, file.size, file.type);
-            idbPut('video', blob).then(function () {
-                idbDelete('image').then(function () {
+            idbPut(getBgIdbKey('video'), blob).then(function () {
+                idbDelete(getBgIdbKey('image')).then(function () {
                     setStoredBgType('video');
                     var url = URL.createObjectURL(blob);
                     applyVideoBackground(url, getStoredOpacity());
@@ -1620,8 +1734,8 @@
         });
 
         document.getElementById('qb-clear-bg').addEventListener('click', function () {
-            idbDelete('image');
-            idbDelete('video');
+            idbDelete(getBgIdbKey('image'));
+            idbDelete(getBgIdbKey('video'));
             setStoredBgType('');
             clearBackground();
             updateBgStatus();
@@ -1650,6 +1764,84 @@
             storeAcrylic(acrylicEnabled);
             applyAcrylic(acrylicEnabled);
             updateAcrylicText();
+        });
+
+        /* Dark mode toggle: light <-> dark */
+        var darkModeLabels = {
+            'light': '\u660e\u6697\u6a21\u5f0f: \u6d45\u8272',
+            'dark': '\u660e\u6697\u6a21\u5f0f: \u6df1\u8272'
+        };
+        var currentDarkMode = getStoredDarkMode();
+        var darkModeBtn = document.getElementById('qb-toggle-darkmode');
+        var darkModeText = document.getElementById('qb-darkmode-text');
+        function updateDarkModeText() {
+            darkModeText.textContent = darkModeLabels[currentDarkMode] || darkModeLabels['light'];
+        }
+        updateDarkModeText();
+        darkModeBtn.addEventListener('click', function () {
+            currentDarkMode = currentDarkMode === 'light' ? 'dark' : 'light';
+            storeDarkMode(currentDarkMode);
+            applyDarkMode(currentDarkMode);
+            updateDarkModeText();
+            /* If dual background is on, switch to the new mode's background */
+            if (getStoredDualBg()) {
+                switchBackgroundForMode();
+                updateBgStatus();
+            }
+        });
+
+        /* Dual background toggle */
+        var dualBgEnabled = getStoredDualBg();
+        var dualBgBtn = document.getElementById('qb-toggle-dualbg');
+        var dualBgText = document.getElementById('qb-dualbg-text');
+        function updateDualBgText() {
+            dualBgText.textContent = dualBgEnabled ? '\u660e\u6697\u72ec\u7acb\u80cc\u666f: \u5f00\u542f' : '\u660e\u6697\u72ec\u7acb\u80cc\u666f: \u5173\u95ed';
+        }
+        updateDualBgText();
+        dualBgBtn.addEventListener('click', function () {
+            dualBgEnabled = !dualBgEnabled;
+            storeDualBg(dualBgEnabled);
+            updateDualBgText();
+            if (dualBgEnabled) {
+                /* Migrate current background to current mode */
+                var oldType = gmGet('qwen_bg_type', '');
+                if (oldType) {
+                    gmSet(getBgTypeStorageKey(), oldType);
+                    idbGet(oldType).then(function (blob) {
+                        if (blob) idbPut(getBgIdbKey(oldType), blob);
+                    });
+                }
+                /* If dark mode and no dark bg uploaded, apply pure black */
+                if (isDarkModeActive() && !getStoredBgType()) {
+                    clearBackground();
+                    applyPureBlackBackground();
+                }
+            } else {
+                /* Turning off: copy current mode's bg to shared key */
+                var curType = getStoredBgType();
+                if (curType) {
+                    gmSet('qwen_bg_type', curType);
+                    idbGet(getBgIdbKey(curType)).then(function (blob) {
+                        if (blob) idbPut(curType, blob);
+                    });
+                }
+                /* Re-apply background from shared key */
+                clearBackground();
+                var sharedType = gmGet('qwen_bg_type', '');
+                if (sharedType === 'image' || sharedType === 'video') {
+                    bgRestoring = true;
+                    idbGet(sharedType).then(function (blob) {
+                        if (blob && !_currentBgUrl) {
+                            var url = URL.createObjectURL(blob);
+                            if (sharedType === 'image') applyImageBackground(url, getStoredOpacity());
+                            else applyVideoBackground(url, getStoredOpacity());
+                        }
+                        bgRestoring = false;
+                        updateBgStatus();
+                    }).catch(function () { bgRestoring = false; });
+                }
+            }
+            updateBgStatus();
         });
 
         var disclaimerHidden = true;
@@ -1689,7 +1881,7 @@
         document.getElementById('qb-init-script').addEventListener('click', function () {
             if (!confirm('\u786e\u8ba4\u6e05\u9664\u6240\u6709\u811a\u672c\u6570\u636e\uff08\u5305\u62ec\u80cc\u666f\u56fe\u7247/\u89c6\u9891\u3001\u4e3b\u9898\u8272\u3001\u5b57\u4f53\u3001\u4f4d\u7f6e\u7b49\u6240\u6709\u8bbe\u7f6e\uff09\u5e76\u5237\u65b0\u9875\u9762\uff1f')) return;
             /* Clear GM storage keys */
-            var keys = ['qwen_bg_type', 'qwen_bg_opacity', 'qwen_panel_pos', 'qwen_theme_color', 'qwen_font', 'qwen_acrylic', 'qwen_custom_bg'];
+            var keys = ['qwen_bg_type', 'qwen_bg_opacity', 'qwen_panel_pos', 'qwen_theme_color', 'qwen_font', 'qwen_acrylic', 'qwen_dark_mode', 'qwen_bg_dual', 'qwen_bg_type_light', 'qwen_bg_type_dark', 'qwen_custom_bg'];
             keys.forEach(function (k) {
                 try { GM_setValue(k, ''); } catch (e) {}
                 try { localStorage.removeItem(k); } catch (e) {}
@@ -1808,7 +2000,16 @@
     var bgRestoring = false;
     function enforceBackground() {
         var bgType = getStoredBgType();
-        if (!bgType) return;
+        if (!bgType) {
+            /* If dual bg on and dark mode, ensure pure black */
+            if (getStoredDualBg() && isDarkModeActive()) {
+                var blackLayer = document.getElementById('qwen-custom-bg-layer');
+                if (!blackLayer || blackLayer.style.backgroundColor !== 'rgb(0, 0, 0)') {
+                    applyPureBlackBackground();
+                }
+            }
+            return;
+        }
         if (_currentBgUrl) return;
         var existing = bgType === 'image'
             ? document.getElementById('qwen-custom-bg-layer')
@@ -1816,7 +2017,7 @@
         if (existing) return;
         if (bgRestoring) return;
         bgRestoring = true;
-        idbGet(bgType).then(function (blob) {
+        idbGet(getBgIdbKey(bgType)).then(function (blob) {
             if (blob && !_currentBgUrl) {
                 var url = URL.createObjectURL(blob);
                 if (bgType === 'image') {
@@ -1836,10 +2037,11 @@
         createPanel();
         applyFont(getStoredFont());
         applyAcrylic(getStoredAcrylic());
+        applyDarkMode(getStoredDarkMode());
         var bgType = getStoredBgType();
         if (bgType === 'image' || bgType === 'video') {
             bgRestoring = true;
-            idbGet(bgType).then(function (blob) {
+            idbGet(getBgIdbKey(bgType)).then(function (blob) {
                 if (blob && !_currentBgUrl) {
                     var url = URL.createObjectURL(blob);
                     if (bgType === 'image') {
@@ -1850,6 +2052,9 @@
                 }
                 bgRestoring = false;
             });
+        } else if (getStoredDualBg() && isDarkModeActive()) {
+            /* Dark mode with dual bg on and no bg uploaded: pure black */
+            applyPureBlackBackground();
         }
         var themeColor = getStoredThemeColor();
         if (themeColor) applyThemeColor(themeColor);
