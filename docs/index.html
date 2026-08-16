@@ -184,15 +184,6 @@ body{
 .hero-btn-pan-tip a:hover{text-decoration:underline}
 .hero-btn-row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;width:100%}
 
-/* Screenshots */
-.screenshots-section{padding:16px 0 8px}
-.screenshots-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;padding:8px 0}
-.screenshot-card{padding:12px;overflow:hidden;display:flex;flex-direction:column;align-items:center}
-.screenshot-card img{width:100%;border-radius:10px;display:block;transition:transform .3s}
-.screenshot-card:hover img{transform:scale(1.02)}
-.screenshot-card:hover{transform:translateY(-4px)}
-.screenshot-caption{margin-top:10px;font-size:.8rem;color:var(--text2);text-align:center}
-
 /* Features */
 .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;padding:32px 0}
 .feature{padding:28px}
@@ -255,6 +246,21 @@ body{
   display:block;margin-top:6px;font-size:.82rem;
   color:var(--text3);font-style:italic;
 }
+.steps .step-download-row{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px;
+}
+.steps .btn-download-crx{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 28px;font-size:1rem;font-weight:700;
+  color:#fff;background:linear-gradient(135deg,#10b981,#059669);
+  border:none;border-radius:10px;cursor:pointer;text-decoration:none;
+  box-shadow:0 4px 14px rgba(16,185,129,.35);transition:all .2s;
+  white-space:nowrap;
+}
+.steps .btn-download-crx:hover{
+  transform:translateY(-2px);box-shadow:0 6px 20px rgba(16,185,129,.45);
+}
+.steps .btn-download-crx svg{width:20px;height:20px;flex-shrink:0}
 
 /* Tags */
 .tag{
@@ -379,7 +385,6 @@ footer .links{margin-bottom:8px}
   .hero-btn{width:100%;max-width:280px}
   .hero-btn-row{flex-direction:column;align-items:center}
   .hero-btn-pan-wrap{max-width:280px}
-  .screenshots-grid{grid-template-columns:1fr}
   .modal-box{padding:28px 20px 20px}
   .modal-box .code-display{font-size:1.6rem}
 }
@@ -430,21 +435,6 @@ footer .links{margin-bottom:8px}
   </div>
 </div>
 
-<!-- Screenshots -->
-<div class="screenshots-section">
-<h2 class="section-title">效果预览</h2>
-<div class="screenshots-grid">
-  <div class="screenshot-card glass">
-    <img id="ss-home" alt="Qwen Studio 美化效果 - 主页" loading="lazy">
-    <p class="screenshot-caption">自定义背景 + 毛玻璃效果主页</p>
-  </div>
-  <div class="screenshot-card glass">
-    <img id="ss-chat" alt="Qwen Studio 美化效果 - 对话" loading="lazy">
-    <p class="screenshot-caption">对话界面 + 亚克力气泡</p>
-  </div>
-</div>
-</div>
-
 <!-- Features -->
 <div class="features">
 <div class="feature glass">
@@ -493,9 +483,6 @@ footer .links{margin-bottom:8px}
 <li>Tampermonkey 会自动弹出安装确认页面，点击「<strong>安装</strong>」</li>
 <li>打开 <a href="https://chat.qwen.ai/" target="_blank">chat.qwen.ai</a>，页面右下角出现 <code>[+]</code> 悬浮球即为安装成功</li>
 </ol>
-<p style="margin-top:16px;padding:14px 18px;border-radius:10px;background:rgba(239,68,68,.08);border:2px solid #ef4444;color:#dc2626;font-size:.875rem;line-height:1.7;font-weight:500">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;flex-shrink:0;margin-top:-2px;margin-right:4px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 必读：一定要在「浏览器设置 → 扩展 → 篡改猴 → 详细信息 → 允许运行用户脚本」打开，否则脚本完全无效！手机 Via 浏览器不需要此操作。
-</p>
 </div>
 
 <!-- Chrome -->
@@ -505,7 +492,13 @@ footer .links{margin-bottom:8px}
 <ol class="steps">
 <li>访问 <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey 官网</a>（tampermonkey.net），点击页面中的「<strong>Download</strong>」</li>
 <li>在下载页面找到 Chrome 区域，点击下载 <code>.crx</code> 安装包
-<span class="tip">备选方案：如果官网下载缓慢，可前往 <a href="https://github.com/Tampermonkey/tampermonkey/releases" target="_blank">GitHub Releases</a> 下载最新版 <code>.crx</code> 文件</span></li>
+<div class="step-download-row">
+<a class="btn-download-crx" href="https://data.tampermonkey.net/tampermonkey_stable.crx" target="_blank" rel="noopener">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+一键下载插件
+</a>
+<span class="tip">备选方案：如果官网下载缓慢，可前往 <a href="https://github.com/Tampermonkey/tampermonkey/releases" target="_blank">GitHub Releases</a> 下载最新版 <code>.crx</code> 文件</span>
+</div></li>
 <li>在 Chrome 地址栏输入 <code>chrome://extensions/</code> 并回车，打开扩展管理页</li>
 <li>打开页面右上角的「<strong>开发者模式</strong>」开关</li>
 <li>将下载好的 <code>.crx</code> 文件直接拖拽到 Chrome 扩展管理页面中</li>
@@ -514,9 +507,6 @@ footer .links{margin-bottom:8px}
 <li>Tampermonkey 会自动弹出安装确认页面，点击「<strong>安装</strong>」</li>
 <li>打开 <a href="https://chat.qwen.ai/" target="_blank">chat.qwen.ai</a>，页面右下角出现 <code>[+]</code> 悬浮球即为安装成功</li>
 </ol>
-<p style="margin-top:16px;padding:14px 18px;border-radius:10px;background:rgba(239,68,68,.08);border:2px solid #ef4444;color:#dc2626;font-size:.875rem;line-height:1.7;font-weight:500">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;flex-shrink:0;margin-top:-2px;margin-right:4px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 必读：一定要在「浏览器设置 → 扩展 → 篡改猴 → 详细信息 → 允许运行用户脚本」打开，否则脚本完全无效！手机 Via 浏览器不需要此操作。
-</p>
 </div>
 
 <!-- Mobile -->
@@ -612,20 +602,6 @@ footer .links{margin-bottom:8px}
 </div>
 
 <script>
-// Screenshots are in the same repo, use relative paths (works on both GitHub Pages and Gitee Pages)
-(function(){
-  var imgs = [
-    { id: 'ss-home', file: 'screenshots/preview-home.jpg' },
-    { id: 'ss-chat', file: 'screenshots/preview-chat.jpg' }
-  ];
-
-  imgs.forEach(function(item) {
-    var el = document.getElementById(item.id);
-    if (!el) return;
-    el.src = item.file;
-  });
-})();
-
 function toggleTheme(){
   var sunSVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
   var moonSVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
